@@ -16,12 +16,15 @@
 
 
 plugins {
-	alias(main.plugins.kotlin)
+	alias(main.plugins.kotlin.dsl)
+	alias(main.plugins.kotlinx.serialization)
 }
 
 
 group	= "io.github.jacquarde"
 version	= "0.1"
+
+val testFunctional = "test.functional"
 
 
 kotlin {
@@ -29,18 +32,37 @@ kotlin {
 		languageVersion	= JavaLanguageVersion.of(main.versions.jvm.get())
 		vendor			= JvmVendorSpec.GRAAL_VM
 	}
-	sourceSets {
-		test {
-			kotlin.srcDirs("src/test.functional/kotlin")
-			resources.srcDirs("src/test.functional/resources")
-		}
-	}
 	dependencies {
-		testImplementation(libs.kotest)
+		implementation(gradleApi())
 	}
 }
 
+testing {
+	suites {
+		create<JvmTestSuite>(testFunctional) {
+			dependencies {
+				implementation(libs.kotest)
+				implementation(gradleTestKit())
+				implementation(libs.kotlinx.serialization.cbor)
+			}
+		}
+	}
+}
+
+gradlePlugin {
+	plugins {
+		create("buildSummaryPlugin") {
+			id = "io.github.jacquarde.gradle.plugins.buildSummary"
+			implementationClass = "io.github.jacquarde.gradle.plugins.BuildSummaryPlugin"
+		}
+	}
+	testSourceSets(sourceSets.named(testFunctional).get())
+}
+
 tasks {
+	check {
+		dependsOn(testing.suites.named(testFunctional))
+	}
 	test {
 		useJUnitPlatform()
 	}
