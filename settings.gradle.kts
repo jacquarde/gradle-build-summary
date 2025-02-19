@@ -29,8 +29,9 @@ dependencyResolutionManagement {
 	}
 	versionCatalogs {
 		create("main") {
-			version("gradle", "8.12.1")
+			version("gradle", "8.10")
 			version("jvm", "22")
+//			plugin("kotlin.jvm", "org.jetbrains.kotlin.jvm").version("2.1.10")
 			plugin("kotlin.dsl", "org.gradle.kotlin.kotlin-dsl").version("5.1.2")
 			plugin("kotlinx.serialization", "org.jetbrains.kotlin.plugin.serialization").version("2.0.21")
 		}
@@ -38,6 +39,11 @@ dependencyResolutionManagement {
 			version("kotest", "5.9.1")
 			version("kotlinx.serialization", "1.8.0")
 			library("kotest", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
+			library(
+					"kotlinx.serialization",
+					"org.jetbrains.kotlinx",
+					"kotlinx-serialization-json"
+			).versionRef("kotlinx.serialization")
 			library("kotlinx.serialization.cbor", "org.jetbrains.kotlinx", "kotlinx-serialization-cbor").versionRef("kotlinx.serialization")
 		}
 	}

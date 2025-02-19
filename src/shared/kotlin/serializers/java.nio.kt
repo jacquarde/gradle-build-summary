@@ -15,13 +15,12 @@
  */
 
 
-package io.github.jacquarde.gradle.plugins.fixtures
+package org.eu.jacquarde.serializers
 
 
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
-import kotlin.reflect.jvm.jvmName
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -34,7 +33,7 @@ object PathSerializer: KSerializer<Path> {
 
 	override val descriptor: SerialDescriptor =
 			PrimitiveSerialDescriptor(
-					this::class.jvmName,
+					this::class.java.name,
 					PrimitiveKind.STRING
 			)
 

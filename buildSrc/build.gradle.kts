@@ -15,22 +15,10 @@
  */
 
 
-import io.github.jacquarde.gradle.plugins.fixtures.GradleBuild
-import io.kotest.core.spec.style.StringSpec
-import kotlin.io.path.appendText
+plugins {
+	kotlin("jvm") version "2.1.10"
+}
 
-
-class Test: StringSpec({
-
-	"The plugin must be applied to an init script" {
-
-		val gradleProject = GradleBuild().apply {
-			initScript.appendText(
-					"""
-						apply<io.github.jacquarde.gradle.plugins.BuildSummaryPlugin>()
-					"""
-			)
-		}
-		gradleProject.build(task = "build")
-	}
-})
+repositories {
+	mavenCentral()
+}

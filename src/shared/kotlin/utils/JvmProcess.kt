@@ -15,7 +15,7 @@
  */
 
 
-package io.github.jacquarde.gradle.plugins.fixtures
+package org.eu.jacquarde.utils
 
 
 import java.lang.management.ManagementFactory

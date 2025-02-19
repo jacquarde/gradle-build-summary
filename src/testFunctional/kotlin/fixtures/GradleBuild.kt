@@ -15,7 +15,7 @@
  */
 
 
-package io.github.jacquarde.gradle.plugins.fixtures
+package org.eu.jacquarde.gradle.plugins.fixtures
 
 
 import java.io.File
@@ -25,18 +25,23 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
 
+import org.eu.jacquarde.utils.TemporalFolderManager
+import org.eu.jacquarde.utils.createFile
+
 
 internal open class GradleBuild {
 
 	private val temporalFolderManager = TemporalFolderManager("test")
 
-	private val projectFolder	= temporalFolderManager.createFolder("project")
-	private val gradleFolder	= temporalFolderManager.createFolder("gradle")
+	private val projectFolder = temporalFolderManager.createFolder("project")
+	private val gradleFolder = temporalFolderManager.createFolder("gradle")
 
-	val buildScript		= projectFolder.createFile("build.gradle.kts")
-	val settingsScript	= projectFolder.createFile("settings.gradle.kts")
-	val propertiesFile	= projectFolder.createFile("gradle.properties")
-	var initScript		= gradleFolder.createFile("init.gradle.kts")
+	val buildScript = projectFolder.createFile("build.gradle.kts")
+	val settingsScript = projectFolder.createFile("settings.gradle.kts")
+	val propertiesFile = projectFolder.createFile("gradle.properties")
+	val initScript = gradleFolder.createFile("init.gradle.kts")
+
+	var gradleVersion: String? = null
 
 	init {
 		initScript.appendText(
@@ -50,24 +55,25 @@ internal open class GradleBuild {
 		)
 	}
 
-	fun build(task: String): BuildResult =
-			runner.withArguments(task).build()
+	fun build(task: String): BuildResult = runner.withArguments(task).build()
 
-	private val runner = GradleRunner.create()
-			.withTestKitDir(gradleFolder.toFile())
-			.withProjectDir(projectFolder.toFile())
-			.withPluginClasspath()
-			.withDebug(true)
+	private val runner
+		get() = GradleRunner
+				.create()
+				.withTestKitDir(gradleFolder.toFile())
+				.withProjectDir(projectFolder.toFile())
+				.withPluginClasspath()
+				.withDebug(true)
+				.apply {
+					if (gradleVersion != null) withGradleVersion(gradleVersion)
+				}
 
 	private val pluginClassPath
-		get() =
-			PluginUnderTestMetadataReading
-					.readImplementationClasspath()
-					.normalize()
-					.joinToString {""""${it.path}""""}
+		get() = PluginUnderTestMetadataReading
+				.readImplementationClasspath()
+				.normalize()
+				.joinToString {""""${it.path}""""}
 
 	// TODO: move to shared utils package in another source set
-	private fun List<File>.normalize() =
-			DefaultClassPath.of(this)
-					.asURIs
+	private fun List<File>.normalize() = DefaultClassPath.of(this).asURIs
 }

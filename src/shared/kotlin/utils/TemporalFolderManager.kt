@@ -18,7 +18,7 @@
 @file:UseSerializers(PathSerializer::class)
 
 
-package io.github.jacquarde.gradle.plugins.fixtures
+package org.eu.jacquarde.utils
 
 
 import java.nio.file.Files
@@ -31,6 +31,8 @@ import kotlin.io.path.createFile
 import kotlin.io.path.deleteRecursively
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import org.eu.jacquarde.extensions.also
+import org.eu.jacquarde.serializers.PathSerializer
 
 
 @Serializable
@@ -66,7 +68,3 @@ class TemporalFolderManager(
 
 fun Path.createFile(name: String): Path =
 		resolve(name).createFile()
-
-
-// TODO: move to shared utils package in another source set
-private fun Unit.also(block: ()->Unit) = block()

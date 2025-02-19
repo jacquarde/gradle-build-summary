@@ -24,28 +24,28 @@ plugins {
 group	= "io.github.jacquarde"
 version	= "0.1"
 
-val testFunctional = "test.functional"
-
 
 kotlin {
 	jvmToolchain {
 		languageVersion	= JavaLanguageVersion.of(main.versions.jvm.get())
 		vendor			= JvmVendorSpec.GRAAL_VM
 	}
-	dependencies {
-		implementation(gradleApi())
-	}
 }
 
-testing {
-	suites {
-		create<JvmTestSuite>(testFunctional) {
-			dependencies {
-				implementation(libs.kotest)
-				implementation(gradleTestKit())
-				implementation(libs.kotlinx.serialization.cbor)
-			}
-		}
+modules {
+	val main by existing {
+		implementation(project.dependencies.gradleApi())
+	}
+	val shared by registering {
+		implementation(libs.kotlinx.serialization)
+		implementation(libs.kotlinx.serialization.cbor)
+	}
+	val testFunctional by registering {
+		implementation(shared.output)
+		implementation(libs.kotest)
+		implementation(project.dependencies.gradleTestKit())
+		runtimeOnly(libs.kotlinx.serialization)
+		runtimeOnly(libs.kotlinx.serialization.cbor)
 	}
 }
 
@@ -56,18 +56,26 @@ gradlePlugin {
 			implementationClass = "io.github.jacquarde.gradle.plugins.BuildSummaryPlugin"
 		}
 	}
-	testSourceSets(sourceSets.named(testFunctional).get())
+	testSourceSets(sourceSets.named("testFunctional").get())
 }
 
 tasks {
+	val testFunctional by registering(Test::class) {
+		val testFunctional by sourceSets.getting
+		val shared by sourceSets.getting
+		group = "verification"
+		testClassesDirs = testFunctional.output.classesDirs
+		classpath = shared.runtimeClasspath + testFunctional.runtimeClasspath
+		useJUnitPlatform()
+	}
 	check {
-		dependsOn(testing.suites.named(testFunctional))
+		dependsOn(testFunctional)
 	}
 	test {
 		useJUnitPlatform()
 	}
 	wrapper {
-		distributionType	= Wrapper.DistributionType.ALL
-		gradleVersion		= main.versions.gradle.get()
+		distributionType = Wrapper.DistributionType.ALL
+		gradleVersion = main.versions.gradle.get()
 	}
 }

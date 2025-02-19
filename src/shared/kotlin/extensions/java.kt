@@ -15,13 +15,29 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins
+package org.eu.jacquarde.extensions
 
 
-import org.gradle.api.Plugin
-import org.gradle.api.invocation.Gradle
+import java.util.Optional
 
 
-class BuildSummaryPlugin: Plugin<Gradle> {
-	override fun apply(target: Gradle) {}
+/**
+ * Waits for this process to complete adding a grace time after.
+ *
+ * @see java.util.concurrent.CompletableFuture.get
+ */
+fun Optional<ProcessHandle>.waitWithDelay(milliseconds: Long): Unit {
+	wait()
+	Thread.sleep(milliseconds)
+}
+
+/**
+ * Waits if necessary for this future to complete.
+ *
+ * @see java.util.concurrent.CompletableFuture.get
+ */
+fun Optional<ProcessHandle>.wait() {
+	ifPresent {
+		it.onExit().get()
+	}
 }

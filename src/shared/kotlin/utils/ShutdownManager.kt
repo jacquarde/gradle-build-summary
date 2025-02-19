@@ -15,12 +15,12 @@
  */
 
 
-package io.github.jacquarde.gradle.plugins.fixtures
+package org.eu.jacquarde.utils
 
 
-import java.util.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
+import org.eu.jacquarde.extensions.wait
 
 
 object ShutdownManager {
@@ -55,24 +55,23 @@ object ShutdownManager {
 		}
 
 		override fun run(
-				argument: RECEIVER,
+				receiver: RECEIVER,
 				lambda: RECEIVER.()->Unit,
 		) {
-			ProcessHandle.current().parent().waitFor()
-			argument.lambda()
+			ProcessHandle.current().parent().wait()
+			receiver.lambda()
 		}
-
-		// TODO: move to shared utils package in another source set
-		private fun Optional<ProcessHandle>.waitFor() = ifPresent {it.onExit().get()}
 	}
 }
 
 
 inline fun <reified RECEIVER: Any> RECEIVER.afterShutdown(
 		noinline action: RECEIVER.()->Unit,
-): Unit = ShutdownManager.afterShutdown(this, action, serializer<RECEIVER>())
+): Unit =
+		ShutdownManager.afterShutdown(this, action, serializer<RECEIVER>())
 
 
-private fun addShutdownHook(action: ()->Unit) {
-	Runtime.getRuntime().addShutdownHook(Thread(action))
-}
+private fun addShutdownHook(
+		action: ()->Unit,
+): Unit =
+		Runtime.getRuntime().addShutdownHook(Thread(action))
