@@ -18,6 +18,10 @@
 package org.eu.jacquarde.utils
 
 
+import arrow.resilience.Schedule
+import arrow.resilience.retryRaise
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import org.eu.jacquarde.extensions.wait
@@ -54,12 +58,18 @@ object ShutdownManager {
 			active = false
 		}
 
+		private val retryPolicy = Schedule.recurs<Unit>(5) and Schedule.fibonacci(50.milliseconds)
+
 		override fun run(
 				receiver: RECEIVER,
 				lambda: RECEIVER.()->Unit,
 		) {
 			ProcessHandle.current().parent().wait()
-			receiver.lambda()
+			runBlocking {
+				retryPolicy.retryRaise {
+					receiver.lambda()
+				}
+			}
 		}
 	}
 }

@@ -21,31 +21,37 @@ plugins {
 }
 
 
-group	= "io.github.jacquarde"
-version	= "0.1"
+group = "io.github.jacquarde"
+version = "0.1"
 
 
 kotlin {
 	jvmToolchain {
-		languageVersion	= JavaLanguageVersion.of(main.versions.jvm.get())
-		vendor			= JvmVendorSpec.GRAAL_VM
+		languageVersion = JavaLanguageVersion.of(main.versions.jvm.get())
+		vendor = JvmVendorSpec.GRAAL_VM
 	}
-}
-
-modules {
-	val main by existing {
-		implementation(project.dependencies.gradleApi())
-	}
-	val shared by registering {
-		implementation(libs.kotlinx.serialization)
-		implementation(libs.kotlinx.serialization.cbor)
-	}
-	val testFunctional by registering {
-		implementation(shared.output)
-		implementation(libs.kotest)
-		implementation(project.dependencies.gradleTestKit())
-		runtimeOnly(libs.kotlinx.serialization)
-		runtimeOnly(libs.kotlinx.serialization.cbor)
+	sourceSets {
+		main {
+			dependencies {
+				implementation(project.dependencies.gradleApi())
+			}
+		}
+		shared {
+			dependencies {
+				implementation(libs.kotlinx.serialization)
+				implementation(libs.kotlinx.serialization.cbor)
+				implementation(libs.arrow.resilience)
+				implementation(libs.kotlinx.coroutines)
+			}
+		}
+		testFunctional {
+			dependencies {
+				implementation(libs.kotest)
+				implementation(project.dependencies.gradleTestKit())
+				implementation(project.sourceSets.shared.output)
+				runtimeOnly(project.sourceSets.shared.runtimeClasspath)
+			}
+		}
 	}
 }
 
@@ -56,16 +62,14 @@ gradlePlugin {
 			implementationClass = "io.github.jacquarde.gradle.plugins.BuildSummaryPlugin"
 		}
 	}
-	testSourceSets(sourceSets.named("testFunctional").get())
+	testSourceSets(sourceSets.testFunctional)
 }
 
 tasks {
 	val testFunctional by registering(Test::class) {
-		val testFunctional by sourceSets.getting
-		val shared by sourceSets.getting
 		group = "verification"
-		testClassesDirs = testFunctional.output.classesDirs
-		classpath = shared.runtimeClasspath + testFunctional.runtimeClasspath
+		testClassesDirs = sourceSets.testFunctional.output.classesDirs
+		classpath = sourceSets.testFunctional.runtimeClasspath
 		useJUnitPlatform()
 	}
 	check {

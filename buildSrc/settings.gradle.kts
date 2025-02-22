@@ -16,17 +16,5 @@
 
 
 plugins {
-	id("org.gradle.kotlin.kotlin-dsl") version ("5.1.2")
-}
-
-kotlin {
-	jvmToolchain(22)
-}
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-	implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
+	id("org.gradle.toolchains.foojay-resolver-convention")
 }
