@@ -15,30 +15,42 @@
  */
 
 
-import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
-import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.testing.Test
+import org.gradle.kotlin.dsl.register
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 
-val Project.sourceSets: SourceSetContainer
-	get() =
-		(this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("sourceSets") as SourceSetContainer
+private object SourceSets {
+	const val shared           = "shared"
+	const val testFunctional = "testFunctional"
+}
 
-val Project.shared: NamedDomainObjectProvider<KotlinSourceSet>
-	get() =
-		sourceSets.maybeCreate("shared").let {kotlinExtension.sourceSets.named("shared")}
+val Project.shared
+	get() = register(SourceSets.shared)
 
-val Project.testFunctional: NamedDomainObjectProvider<KotlinSourceSet>
-	get() =
-		sourceSets.maybeCreate("testFunctional").let {kotlinExtension.sourceSets.named("testFunctional")}
+val SourceSetContainer.shared
+	get() = named(SourceSets.shared).get()
 
-val SourceSetContainer.shared: SourceSet
-	get() =
-		named("shared").get()
+val Project.testFunctional
+	get() = register(SourceSets.testFunctional)
 
-val SourceSetContainer.testFunctional: SourceSet
-	get() =
-		named("testFunctional").get()
+val SourceSetContainer.testFunctional
+	get() = named(SourceSets.testFunctional).get()
+
+val TaskContainer.testFunctional
+	get() = register(SourceSets.testFunctional, Test::class) {
+		group = "verification"
+		testClassesDirs = project.sourceSets.testFunctional.output.classesDirs
+		classpath       = project.sourceSets.testFunctional.runtimeClasspath
+	}
+
+
+private val Project.sourceSets
+	get() = (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("sourceSets") as SourceSetContainer
+
+private fun Project.register(name: String) =
+		sourceSets.maybeCreate(name)
+				.let {kotlinExtension.sourceSets.named(name)}

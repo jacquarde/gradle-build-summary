@@ -15,10 +15,11 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.fixtures
+package fixtures
 
 
 import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.appendText
 import org.gradle.internal.classpath.DefaultClassPath
 import org.gradle.testkit.runner.BuildResult
@@ -34,25 +35,17 @@ internal open class GradleBuild {
 	private val temporalFolderManager = TemporalFolderManager("test")
 
 	private val projectFolder = temporalFolderManager.createFolder("project")
-	private val gradleFolder = temporalFolderManager.createFolder("gradle")
+	private val gradleFolder  = temporalFolderManager.createFolder("gradle")
 
-	val buildScript = projectFolder.createFile("build.gradle.kts")
+	val buildScript    = projectFolder.createFile("build.gradle.kts")
 	val settingsScript = projectFolder.createFile("settings.gradle.kts")
 	val propertiesFile = projectFolder.createFile("gradle.properties")
-	val initScript = gradleFolder.createFile("init.gradle.kts")
+	val initScript     = gradleFolder.createFile("init.gradle.kts")
 
 	var gradleVersion: String? = null
 
 	init {
-		initScript.appendText(
-				"""
-					initscript{
-						dependencies{
-							classpath(files($pluginClassPath))
-						}
-					}
-				"""
-		)
+		initScript.appendPluginClasspath()
 	}
 
 	fun build(task: String): BuildResult = runner.withArguments(task).build()
@@ -68,6 +61,15 @@ internal open class GradleBuild {
 					if (gradleVersion != null) withGradleVersion(gradleVersion)
 				}
 
+	private fun Path.appendPluginClasspath() =
+			append("""
+					initscript{
+						dependencies{
+							classpath(files($pluginClassPath))
+						}
+					}
+			""")
+
 	private val pluginClassPath
 		get() = PluginUnderTestMetadataReading
 				.readImplementationClasspath()
@@ -77,3 +79,7 @@ internal open class GradleBuild {
 	// TODO: move to shared utils package in another source set
 	private fun List<File>.normalize() = DefaultClassPath.of(this).asURIs
 }
+
+
+public infix fun Path.append(text: String): Path =
+		apply { appendText(text.trimIndent()) }

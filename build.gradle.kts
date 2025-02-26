@@ -21,14 +21,14 @@ plugins {
 }
 
 
-group = "io.github.jacquarde"
+group   = "io.github.jacquarde"
 version = "0.1"
 
 
 kotlin {
 	jvmToolchain {
 		languageVersion = JavaLanguageVersion.of(main.versions.jvm.get())
-		vendor = JvmVendorSpec.GRAAL_VM
+		vendor          = JvmVendorSpec.GRAAL_VM
 	}
 	sourceSets {
 		main {
@@ -42,6 +42,10 @@ kotlin {
 				implementation(libs.kotlinx.serialization.cbor)
 				implementation(libs.arrow.resilience)
 				implementation(libs.kotlinx.coroutines)
+				implementation(libs.ktor.server.core)
+				implementation(libs.ktor.server.netty)
+				implementation(libs.ktor.server.content)
+				implementation(libs.ktor.server.json)
 			}
 		}
 		testFunctional {
@@ -58,7 +62,7 @@ kotlin {
 gradlePlugin {
 	plugins {
 		create("buildSummaryPlugin") {
-			id = "io.github.jacquarde.gradle.plugins.buildSummary"
+			id                  = "io.github.jacquarde.gradle.plugins.buildSummary"
 			implementationClass = "io.github.jacquarde.gradle.plugins.BuildSummaryPlugin"
 		}
 	}
@@ -66,20 +70,14 @@ gradlePlugin {
 }
 
 tasks {
-	val testFunctional by registering(Test::class) {
-		group = "verification"
-		testClassesDirs = sourceSets.testFunctional.output.classesDirs
-		classpath = sourceSets.testFunctional.runtimeClasspath
-		useJUnitPlatform()
-	}
 	check {
 		dependsOn(testFunctional)
 	}
-	test {
+	testFunctional {
 		useJUnitPlatform()
 	}
 	wrapper {
 		distributionType = Wrapper.DistributionType.ALL
-		gradleVersion = main.versions.gradle.get()
+		gradleVersion    = main.versions.gradle.get()
 	}
 }

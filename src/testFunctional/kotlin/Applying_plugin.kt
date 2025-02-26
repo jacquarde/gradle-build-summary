@@ -15,29 +15,26 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins
-
-
+import fixtures.GradleBuild
+import fixtures.append
 import io.kotest.core.spec.style.StringSpec
-import kotlin.io.path.appendText
-import org.eu.jacquarde.gradle.plugins.fixtures.GradleBuild
 
 
 class `Applying plugin`: StringSpec({
 
-	with("8.12.1", "8.12", "8.11", "8.10") {version ->
+	// SEE: https://gradle.org/releases/
+	with("8.12.1", "8.12", "8.11.1", "8.10.2") {version ->
 		"The plugin should be applied to an init script in version $version" {
 			GradleBuild().apply {
 				gradleVersion = version
-				initScript.appendText(
-						"""
-							apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
-						"""
-				)
-			}.build(task = "build")
+				initScript append """
+						apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+					"""
+			}.build(task = "tasks")
 		}
 	}
 })
+
 
 // TODO: move this to utils and check kotest dataset dependency
 fun <DATA> with(vararg data: DATA, testBlock: (DATA)->Unit) =
