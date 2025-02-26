@@ -16,36 +16,68 @@
 
 
 plugins {
-	alias(main.plugins.kotlin)
+	alias(main.plugins.kotlin.dsl)
+	alias(main.plugins.kotlinx.serialization)
 }
 
 
-group	= "io.github.jacquarde"
-version	= "0.1"
+group   = "io.github.jacquarde"
+version = "0.1"
 
 
 kotlin {
 	jvmToolchain {
-		languageVersion	= JavaLanguageVersion.of(main.versions.jvm.get())
-		vendor			= JvmVendorSpec.GRAAL_VM
+		languageVersion = JavaLanguageVersion.of(main.versions.jvm.get())
+		vendor          = JvmVendorSpec.GRAAL_VM
 	}
 	sourceSets {
-		test {
-			kotlin.srcDirs("src/test.functional/kotlin")
-			resources.srcDirs("src/test.functional/resources")
+		main {
+			dependencies {
+				implementation(project.dependencies.gradleApi())
+			}
 		}
-	}
-	dependencies {
-		testImplementation(libs.kotest)
+		shared {
+			dependencies {
+				implementation(libs.kotlinx.serialization)
+				implementation(libs.kotlinx.serialization.cbor)
+				implementation(libs.arrow.resilience)
+				implementation(libs.kotlinx.coroutines)
+				implementation(libs.ktor.server.core)
+				implementation(libs.ktor.server.netty)
+				implementation(libs.ktor.server.content)
+				implementation(libs.ktor.server.json)
+			}
+		}
+		testFunctional {
+			dependencies {
+				implementation(libs.kotest)
+				implementation(project.dependencies.gradleTestKit())
+				implementation(project.sourceSets.shared.output)
+				runtimeOnly(project.sourceSets.shared.runtimeClasspath)
+			}
+		}
 	}
 }
 
+gradlePlugin {
+	plugins {
+		create("buildSummaryPlugin") {
+			id                  = "io.github.jacquarde.gradle.plugins.buildSummary"
+			implementationClass = "io.github.jacquarde.gradle.plugins.BuildSummaryPlugin"
+		}
+	}
+	testSourceSets(sourceSets.testFunctional)
+}
+
 tasks {
-	test {
+	check {
+		dependsOn(testFunctional)
+	}
+	testFunctional {
 		useJUnitPlatform()
 	}
 	wrapper {
-		distributionType	= Wrapper.DistributionType.ALL
-		gradleVersion		= main.versions.gradle.get()
+		distributionType = Wrapper.DistributionType.ALL
+		gradleVersion    = main.versions.gradle.get()
 	}
 }
