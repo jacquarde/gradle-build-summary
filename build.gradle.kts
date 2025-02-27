@@ -21,7 +21,7 @@ plugins {
 }
 
 
-group   = "io.github.jacquarde"
+group   = "org.eu.jacquarde"
 version = "0.1"
 
 
@@ -62,19 +62,19 @@ kotlin {
 gradlePlugin {
 	plugins {
 		create("buildSummaryPlugin") {
-			id                  = "io.github.jacquarde.gradle.plugins.buildSummary"
-			implementationClass = "io.github.jacquarde.gradle.plugins.BuildSummaryPlugin"
+			id                  = "org.eu.jacquarde.gradle.plugins.buildSummary"
+			implementationClass = "org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin"
 		}
 	}
 	testSourceSets(sourceSets.testFunctional)
 }
 
 tasks {
-	check {
-		dependsOn(testFunctional)
-	}
 	testFunctional {
 		useJUnitPlatform()
+	}
+	check {
+		dependsOn(testFunctional)
 	}
 	wrapper {
 		distributionType = Wrapper.DistributionType.ALL

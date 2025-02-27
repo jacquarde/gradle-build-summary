@@ -17,15 +17,16 @@
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.TaskContainerScope
+import org.gradle.kotlin.dsl.maybeCreate
+import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 
 
 private object SourceSets {
 	const val shared           = "shared"
-	const val testFunctional = "testFunctional"
+	const val testFunctional   = "testFunctional"
 }
 
 val Project.shared
@@ -40,13 +41,14 @@ val Project.testFunctional
 val SourceSetContainer.testFunctional
 	get() = named(SourceSets.testFunctional).get()
 
-val TaskContainer.testFunctional
-	get() = register(SourceSets.testFunctional, Test::class) {
-		group = "verification"
-		testClassesDirs = project.sourceSets.testFunctional.output.classesDirs
-		classpath       = project.sourceSets.testFunctional.runtimeClasspath
-	}
-
+val TaskContainerScope.testFunctional
+	get() = maybeCreate(SourceSets.testFunctional, Test::class)
+			.apply {
+				group           = "verification"
+				testClassesDirs = project.sourceSets.testFunctional.output.classesDirs
+				classpath       = project.sourceSets.testFunctional.runtimeClasspath
+			}
+			.let {named(SourceSets.testFunctional, Test::class)}
 
 private val Project.sourceSets
 	get() = (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("sourceSets") as SourceSetContainer
