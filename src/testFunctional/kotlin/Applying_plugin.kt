@@ -18,19 +18,27 @@
 import fixtures.GradleBuild
 import fixtures.append
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.equals.shouldBeEqual
+import org.gradle.testkit.runner.TaskOutcome
 
 
 class `Applying plugin`: StringSpec({
 
 	// SEE: https://gradle.org/releases/
 	with("8.12.1", "8.12", "8.11.1", "8.10.2") {version ->
-		"The plugin should be applied to an init script in version $version" {
-			GradleBuild().apply {
+		"to an init script in version $version" {
+
+			val givenTask   = ":buildEnvironment"
+			val givenGradle = GradleBuild().apply {
 				gradleVersion = version
 				initScript append """
-						apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
-					"""
-			}.build(task = "tasks")
+					apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				"""
+			}
+
+			val actualResult = givenGradle.build(task = givenTask)
+
+			actualResult.task(givenTask)!!.outcome shouldBeEqual TaskOutcome.SUCCESS
 		}
 	}
 })
