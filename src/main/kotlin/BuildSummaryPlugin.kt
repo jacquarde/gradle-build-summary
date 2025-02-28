@@ -23,5 +23,6 @@ import org.gradle.api.invocation.Gradle
 
 
 class BuildSummaryPlugin: Plugin<Gradle> {
+
 	override fun apply(target: Gradle) {}
 }

@@ -25,7 +25,6 @@ import org.gradle.internal.classpath.DefaultClassPath
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
-
 import org.eu.jacquarde.utils.TemporalFolderManager
 import org.eu.jacquarde.utils.createFile
 
@@ -34,8 +33,8 @@ internal open class GradleBuild {
 
 	private val temporalFolderManager = TemporalFolderManager("test")
 
-	private val projectFolder = temporalFolderManager.createFolder("project")
-	private val gradleFolder  = temporalFolderManager.createFolder("gradle")
+	val projectFolder = temporalFolderManager.createFolder("project")
+	val gradleFolder  = temporalFolderManager.createFolder("gradle")
 
 	val buildScript    = projectFolder.createFile("build.gradle.kts")
 	val settingsScript = projectFolder.createFile("settings.gradle.kts")
@@ -82,4 +81,6 @@ internal open class GradleBuild {
 
 
 public infix fun Path.append(text: String): Path =
-		apply { appendText(text.trimIndent()) }
+		apply {
+			appendText(System.lineSeparator())
+			appendText(text.trimIndent()) }

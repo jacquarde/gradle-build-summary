@@ -1,5 +1,4 @@
 /*
-import io.kotest.core.spec.style.StringSpec
  * Copyright 2025 jacquarde
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,20 +18,39 @@ import io.kotest.core.spec.style.StringSpec
 import fixtures.GradleBuild
 import fixtures.append
 import io.kotest.core.spec.style.StringSpec
-import org.eu.jacquarde.stubs.GradleBuildScanServer
+import io.kotest.matchers.equals.shouldBeEqual
+import java.nio.file.Path
+import kotlin.io.path.readText
 
 
-class `Generating build summary`: StringSpec({
+class `Generating simple-project build summary`: StringSpec({
 
-	autoClose(GradleBuildScanServer())
+	"for a single gradle task with successful result and no develocity plugin." {
 
-	"for a simple gradle task with successful result and no develocity plugin" {
-		GradleBuild().apply {
-			gradleVersion = "8.12.1"
+		val givenVersion         = "8.12.1"
+		val givenTask            = ":build"
+		val givenRootProject     = """root-project"""
+		val givenGradleBuild     = GradleBuild().apply {
+			gradleVersion = givenVersion
 			initScript append """
-					apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
-				"""
-		}.build(task = "build")
+				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+			"""
+			settingsScript append """
+				rootProject.name = "$givenRootProject" 
+			"""
+		}
+
+		givenGradleBuild.build(task = givenTask)
+
+		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			[![](https://img.shields.io/badge/$givenVersion-Build_Scan_not_published-06A0CE?&logo=Gradle)](https://scans.gradle.com)
+
+			:white_check_mark: **$givenRootProject** :$givenTask
+		""".trimIndent()
 	}
 
 })
+
+
+private infix fun Path.shouldContain(text: String) =
+		readText().shouldBeEqual(text)
