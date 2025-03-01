@@ -48,6 +48,13 @@ kotlin {
 				implementation(libs.ktor.server.json)
 			}
 		}
+		testUnit {
+			dependencies {
+				implementation(libs.kotest)
+				implementation(project.sourceSets.main.get().output)
+				compileOnly(libs.jetbrains.annotations)
+			}
+		}
 		testFunctional {
 			dependencies {
 				implementation(libs.kotest)
@@ -70,10 +77,14 @@ gradlePlugin {
 }
 
 tasks {
+	testUnit {
+		useJUnitPlatform()
+	}
 	testFunctional {
 		useJUnitPlatform()
 	}
 	check {
+		dependsOn(testUnit)
 		dependsOn(testFunctional)
 	}
 	wrapper {
