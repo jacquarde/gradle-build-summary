@@ -24,9 +24,10 @@ import org.eu.jacquarde.gradle.plugins.BuildSummary
 
 class MarkdownWriter(
         private val buildSummary: BuildSummary,
-) {
+): BuildSummaryWriter {
+
     @Language("Markdown")
-    fun write() =
+    override fun write() =
             with(buildSummary) {
                 "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  "
             }

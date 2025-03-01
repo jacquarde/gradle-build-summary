@@ -24,9 +24,9 @@ import org.eu.jacquarde.gradle.plugins.BuildSummary
 // SEE: https://shields.io/badges/static-badge
 class MarkdownBadgeWriter(
         private val buildSummary: BuildSummary,
-) {
+): BuildSummaryWriter {
 
-    fun write() =
+    override fun write() =
             "$buildBadge$newLine$publishBadge$markdownHardLineBreak"
 
     private val buildBadge get() =
