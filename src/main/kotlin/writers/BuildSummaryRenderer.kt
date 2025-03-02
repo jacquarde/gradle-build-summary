@@ -15,14 +15,10 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins
+package org.eu.jacquarde.gradle.plugins.writers
 
 
-import org.gradle.api.Plugin
-import org.gradle.api.invocation.Gradle
+interface BuildSummaryRenderer {
 
-
-class BuildSummaryPlugin: Plugin<Gradle> {
-
-	override fun apply(target: Gradle) {}
+    fun render(): String
 }

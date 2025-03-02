@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 private object SourceSets {
 	const val shared           = "shared"
 	const val testFunctional   = "testFunctional"
+	const val testUnit         = "testUnit"
 }
 
 val Project.shared
@@ -34,6 +35,7 @@ val Project.shared
 
 val SourceSetContainer.shared
 	get() = named(SourceSets.shared).get()
+
 
 val Project.testFunctional
 	get() = register(SourceSets.testFunctional)
@@ -49,6 +51,23 @@ val TaskContainerScope.testFunctional
 				classpath       = project.sourceSets.testFunctional.runtimeClasspath
 			}
 			.let {named(SourceSets.testFunctional, Test::class)}
+
+
+val Project.testUnit
+	get() = register(SourceSets.testUnit)
+
+val SourceSetContainer.testUnit
+	get() = named(SourceSets.testUnit).get()
+
+val TaskContainerScope.testUnit
+	get() = maybeCreate(SourceSets.testUnit, Test::class)
+			.apply {
+				group           = "verification"
+				testClassesDirs = project.sourceSets.testUnit.output.classesDirs
+				classpath       = project.sourceSets.testUnit.runtimeClasspath
+			}
+			.let {named(SourceSets.testUnit, Test::class)}
+
 
 private val Project.sourceSets
 	get() = (this as org.gradle.api.plugins.ExtensionAware).extensions.getByName("sourceSets") as SourceSetContainer

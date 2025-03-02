@@ -18,11 +18,20 @@
 package org.eu.jacquarde.gradle.plugins
 
 
-import org.gradle.api.Plugin
-import org.gradle.api.invocation.Gradle
+data class BuildSummary(
+		val rootProject:      String,
+		val tasks:            List<String>,
+		val gradleVersion:    String,
+		val hasBuildFailed:   Boolean,
+		val buildScanUrl:     String  = "",
+		val hasPublishFailed: Boolean = false,
+) {
+	enum class PublishStatus { NotPublished, Published, PublishFailed }
 
-
-class BuildSummaryPlugin: Plugin<Gradle> {
-
-	override fun apply(target: Gradle) {}
+	val publishStatus get() =
+			when {
+				hasPublishFailed       -> PublishStatus.PublishFailed
+				buildScanUrl.isBlank() -> PublishStatus.NotPublished
+				else                   -> PublishStatus.Published
+			}
 }
