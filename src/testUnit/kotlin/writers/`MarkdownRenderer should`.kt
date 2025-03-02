@@ -23,7 +23,7 @@ import io.kotest.matchers.shouldBe
 import org.eu.jacquarde.gradle.plugins.BuildSummary
 
 
-class `MarkdownWriter should`: StringSpec({
+class `MarkdownRenderer should`: StringSpec({
 
     "generate a markdown for a successful `BuildSummary` without build scan URL." {
 
@@ -34,7 +34,7 @@ class `MarkdownWriter should`: StringSpec({
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe "✔ **root-project** `:build` ┃ _Gradle 8.12.1_  "
@@ -49,7 +49,7 @@ class `MarkdownWriter should`: StringSpec({
                 hasBuildFailed = true
         )
 
-        val actualMarkdown = MarkdownWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe "✖ **another-root-project** `:check-all` ┃ _Gradle 8.12.1-rc2_  "
@@ -65,7 +65,7 @@ class `MarkdownWriter should`: StringSpec({
                 buildScanUrl   = "test://buildscan"
         )
 
-        val actualMarkdown = MarkdownWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe "✔ **project** `:build` ┃ _Gradle 8.12 [BuildScan](test://buildscan)_  "
@@ -81,7 +81,7 @@ class `MarkdownWriter should`: StringSpec({
                 hasPublishFailed = true
         )
 
-        val actualMarkdown = MarkdownWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe "✔ **root-project** `:build` ┃ _Gradle 8.9 ~~BuildScan~~_  "
@@ -96,7 +96,7 @@ class `MarkdownWriter should`: StringSpec({
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe "✔ **root-project** `:clean :check :build` ┃ _Gradle 8.12.1_  "

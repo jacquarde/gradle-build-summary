@@ -22,15 +22,15 @@ import org.intellij.lang.annotations.Language
 import org.eu.jacquarde.gradle.plugins.BuildSummary
 
 
-class MarkdownWriter(
+class MarkdownRenderer(
         private val buildSummary: BuildSummary,
-): BuildSummaryWriter {
+): BuildSummaryRenderer {
 
     @Language("Markdown")
-    override fun write() =
-            with(buildSummary) {
-                "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  "
-            }
+    override fun render() =
+        with(buildSummary) {
+            "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  "
+        }
 
     private val buildOutcome = if (buildSummary.hasBuildFailed) "✖" else "✔"
     private val taskList     = buildSummary.tasks.joinToString(" ")

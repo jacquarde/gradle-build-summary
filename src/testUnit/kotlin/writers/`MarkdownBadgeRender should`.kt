@@ -23,7 +23,7 @@ import io.kotest.matchers.shouldBe
 import org.eu.jacquarde.gradle.plugins.BuildSummary
 
 
-class `MarkdownBadgeWriter should`: StringSpec({
+class `MarkdownBadgeRender should`: StringSpec({
 
     "generate a markdown for a successful `BuildSummary` without build scan URL." {
 
@@ -34,7 +34,7 @@ class `MarkdownBadgeWriter should`: StringSpec({
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownBadgeWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -52,7 +52,7 @@ class `MarkdownBadgeWriter should`: StringSpec({
                 hasBuildFailed = true
         )
 
-        val actualMarkdown = MarkdownBadgeWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -71,7 +71,7 @@ class `MarkdownBadgeWriter should`: StringSpec({
                 buildScanUrl   = "test://buildscan"
         )
 
-        val actualMarkdown = MarkdownBadgeWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -90,7 +90,7 @@ class `MarkdownBadgeWriter should`: StringSpec({
                 hasPublishFailed = true
         )
 
-        val actualMarkdown = MarkdownBadgeWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -108,7 +108,7 @@ class `MarkdownBadgeWriter should`: StringSpec({
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownBadgeWriter(givenBuildSummary).write()
+        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
 
         //language=Markdown
         actualMarkdown shouldBe """

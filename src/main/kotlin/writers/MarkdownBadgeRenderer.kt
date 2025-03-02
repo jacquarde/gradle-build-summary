@@ -22,11 +22,11 @@ import org.eu.jacquarde.gradle.plugins.BuildSummary
 
 
 // SEE: https://shields.io/badges/static-badge
-class MarkdownBadgeWriter(
+class MarkdownBadgeRenderer(
         private val buildSummary: BuildSummary,
-): BuildSummaryWriter {
+): BuildSummaryRenderer {
 
-    override fun write() =
+    override fun render() =
             "$buildBadge$newLine$publishBadge$markdownHardLineBreak"
 
     private val buildBadge get() =
