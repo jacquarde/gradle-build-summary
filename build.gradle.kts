@@ -34,6 +34,8 @@ kotlin {
 		main {
 			dependencies {
 				implementation(project.dependencies.gradleApi())
+				implementation("com.gradle:develocity-gradle-plugin:3.19.2")
+//				implementation("com.gradle:develocity-gradle-plugin-adapters:1.1")
 			}
 		}
 		shared {

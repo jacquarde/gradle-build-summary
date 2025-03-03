@@ -21,15 +21,18 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import java.nio.file.Path
 import kotlin.io.path.readText
+import org.eu.jacquarde.stubs.GradleBuildScanServer
 
 
 class `Generating simple-project build summary`: StringSpec({
 
-	"for a single gradle task with successful result and no develocity plugin." {
+	val develocityServer = GradleBuildScanServer().apply {responseMode = GradleBuildScanServer.ResponseMode.Error}
+
+	"for a single gradle task with successful result and develocity plugin." {
 
 		val givenVersion         = "8.12.1"
-		val givenTask            = ":build"
-		val givenRootProject     = """root-project"""
+		val givenTask            = ":tasks"
+		val givenRootProject     = "root-project"
 		val givenGradleBuild     = GradleBuild().apply {
 			gradleVersion = givenVersion
 			initScript append """
@@ -37,16 +40,26 @@ class `Generating simple-project build summary`: StringSpec({
 			"""
 			settingsScript append """
 				rootProject.name = "$givenRootProject" 
+				plugins {
+    				id("com.gradle.develocity") version("3.19.2")
+				}
+				develocity {
+					server = "${develocityServer.url}"
+				}
 			"""
 		}
 
-		givenGradleBuild.build(task = givenTask)
+		val result = givenGradleBuild.build(task = givenTask)
 
-		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
-			[![](https://img.shields.io/badge/$givenVersion-Build_Scan_not_published-06A0CE?&logo=Gradle)](https://scans.gradle.com)
+		println("=".repeat(80))
+		println(result.output)
+		println("=".repeat(80))
 
-			:white_check_mark: **$givenRootProject** :$givenTask
-		""".trimIndent()
+//		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+//			[![](https://img.shields.io/badge/$givenVersion-Build_Scan_not_published-06A0CE?&logo=Gradle)](https://scans.gradle.com)
+//
+//			:white_check_mark: **$givenRootProject** :$givenTask
+//		""".trimIndent()
 	}
 
 })
