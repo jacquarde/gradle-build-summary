@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-@file:Suppress("KDocMissingDocumentation", "UnstableApiUsage")
-
 
 package org.eu.jacquarde.gradle.plugins
 
 
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import javax.inject.Inject
 import org.gradle.api.Plugin
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
@@ -33,11 +35,32 @@ abstract class BuildSummaryPlugin @Inject constructor(
         private val flowProviders: FlowProviders,
 ): Plugin<Gradle> {
 
+    private val summaryFileName = "build-summary.md"
+
     public override fun apply(gradle: Gradle) {
         BuildSummaryCollector(gradle, flowScope, flowProviders) {buildSummary ->
-            println("#".repeat(120))
-            println(MarkdownRenderer(buildSummary).render())
-            println("#".repeat(120))
+            buildSummary
+                    .render()
+                    .writeTo(gradle.summaryFile)
         }
     }
+
+    private val Gradle.summaryFile: Path get() =
+        rootProject.layout.buildDirectory
+                .ensureIsCreated()
+                .resolve(summaryFileName)
+
 }
+
+
+private fun DirectoryProperty.ensureIsCreated() =
+        Files.createDirectories(this.toPath)
+
+private val DirectoryProperty.toPath: Path get() =
+        get().asFile.toPath()
+
+private fun BuildSummary.render(): String =
+        MarkdownRenderer(this).render()
+
+private fun String.writeTo(file: Path?) =
+        Files.writeString(file, this, StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE)

@@ -26,20 +26,37 @@ import org.eu.jacquarde.stubs.GradleBuildScanServer
 
 class `Generating simple-project build summary`: StringSpec({
 
-	val develocityServer = GradleBuildScanServer().apply {responseMode = GradleBuildScanServer.ResponseMode.Error}
+	val develocityServer = GradleBuildScanServer()
 
-	"for a single gradle task with successful result and develocity plugin." {
+	"for a single gradle task with successful result without develocity plugin." {
 
-		val givenVersion         = "8.12.1"
-		val givenTask            = ":tasks"
-		val givenRootProject     = "root-project"
-		val givenGradleBuild     = GradleBuild().apply {
-			gradleVersion = givenVersion
+		val givenGradleBuild = GradleBuild().apply {
+			gradleVersion = "8.12.1"
 			initScript append """
 				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
 			"""
 			settingsScript append """
-				rootProject.name = "$givenRootProject" 
+				rootProject.name = "root-project" 
+			"""
+		}
+
+		givenGradleBuild.build(":tasks")
+
+		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			✔ **root-project** `:tasks` ┃ _Gradle 8.12.1_  
+		""".trimIndent()
+	}
+
+	"for several gradle tasks with successful result with develocity plugin." {
+
+		develocityServer.scanUrl = "test://scan.url"
+		val givenGradleBuild = GradleBuild().apply {
+			gradleVersion = "8.12.1"
+			initScript append """
+				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+			"""
+			settingsScript append """
+				rootProject.name = "an-project"
 				plugins {
     				id("com.gradle.develocity") version("3.19.2")
 				}
@@ -49,17 +66,57 @@ class `Generating simple-project build summary`: StringSpec({
 			"""
 		}
 
-		val result = givenGradleBuild.build(task = givenTask)
+		givenGradleBuild.build("tasks", "projects")
 
-		println("=".repeat(80))
-		println(result.output)
-		println("=".repeat(80))
+		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			✔ **an-project** `tasks projects` ┃ _Gradle 8.12.1 [BuildScan](test://scan.url)_  
+		""".trimIndent()
+	}
 
-//		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
-//			[![](https://img.shields.io/badge/$givenVersion-Build_Scan_not_published-06A0CE?&logo=Gradle)](https://scans.gradle.com)
-//
-//			:white_check_mark: **$givenRootProject** :$givenTask
-//		""".trimIndent()
+	"for a single gradle task with successful result with failing develocity server." {
+
+		develocityServer.responseMode = GradleBuildScanServer.ResponseMode.Error
+		val givenGradleBuild = GradleBuild().apply {
+			gradleVersion = "8.12.1"
+			initScript append """
+				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+			"""
+			settingsScript append """
+				rootProject.name = "root-project"
+				plugins {
+    				id("com.gradle.develocity") version("3.19.2")
+				}
+				develocity {
+					server = "${develocityServer.url}"
+				}
+			"""
+		}
+
+		givenGradleBuild.build(":tasks")
+
+		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			✔ **root-project** `:tasks` ┃ _Gradle 8.12.1 ~~BuildScan~~_  
+		""".trimIndent()
+	}
+
+	"for a several builds with successful result" {
+
+		val givenGradleBuild = GradleBuild().apply {
+			gradleVersion = "8.12.1"
+			initScript append """
+				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+			"""
+			settingsScript append """
+				rootProject.name = "root-project"
+			"""
+		}
+
+		givenGradleBuild.build(":tasks")
+		givenGradleBuild.build(":projects")
+
+		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			✔ **root-project** `:tasks` ┃ _Gradle 8.12.1_  ✔ **root-project** `:projects` ┃ _Gradle 8.12.1_  
+		""".trimIndent()
 	}
 
 })

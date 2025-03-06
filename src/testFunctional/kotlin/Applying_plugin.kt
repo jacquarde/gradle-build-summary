@@ -36,7 +36,7 @@ class `Applying plugin`: StringSpec({
 				"""
 			}
 
-			val actualResult = givenGradle.build(task = givenTask)
+			val actualResult = givenGradle.build(givenTask)
 
 			actualResult.task(givenTask)!!.outcome shouldBeEqual TaskOutcome.SUCCESS
 		}

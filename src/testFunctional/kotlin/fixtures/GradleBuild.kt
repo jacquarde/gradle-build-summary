@@ -47,7 +47,7 @@ internal open class GradleBuild {
 		initScript.appendPluginClasspath()
 	}
 
-	fun build(task: String): BuildResult = runner.withArguments(task).build()
+	fun build(vararg task: String): BuildResult = runner.withArguments(*task).build()
 
 	private val runner
 		get() = GradleRunner

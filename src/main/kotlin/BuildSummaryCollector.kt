@@ -18,7 +18,6 @@
 package org.eu.jacquarde.gradle.plugins
 
 
-import com.gradle.develocity.agent.gradle.internal.scan.BuildScanConfigurationInternal.BuildScanError
 import com.gradle.develocity.agent.gradle.scan.PublishedBuildScan
 import org.gradle.api.flow.BuildWorkResult
 import org.gradle.api.flow.FlowProviders
@@ -49,7 +48,7 @@ internal class BuildSummaryCollector(
         summary.hasBuildFailed = buildResult.failure.isPresent
     }
 
-    override fun onBuildScanError(error: BuildScanError) {
+    override fun onBuildScanError(error: String) {
         summary.hasPublishFailed = true
     }
 

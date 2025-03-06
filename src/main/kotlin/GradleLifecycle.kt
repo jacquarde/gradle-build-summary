@@ -19,7 +19,6 @@ package org.eu.jacquarde.gradle.plugins
 
 
 import com.gradle.develocity.agent.gradle.internal.DevelocityConfigurationInternal
-import com.gradle.develocity.agent.gradle.internal.scan.BuildScanConfigurationInternal.BuildScanError
 import com.gradle.develocity.agent.gradle.scan.PublishedBuildScan
 import org.gradle.api.flow.BuildWorkResult
 import org.gradle.api.flow.FlowAction
@@ -42,7 +41,7 @@ internal abstract class GradleLifecycle(
         gradle.settingsEvaluated(::onSettingsEvaluated)
         gradle.projectsEvaluated(::onProjectsEvaluated)
         gradle.settingsEvaluated {
-            develocity?.buildScan?.onErrorInternal(::onBuildScanError)
+            develocity?.buildScan?.onError(::onBuildScanError)
             develocity?.buildScan?.buildScanPublished(::onBuildScanPublished)
         }
         flowScope.always(BuildFinishedAction::class) {
@@ -80,7 +79,7 @@ internal abstract class GradleLifecycle(
     public abstract fun onSettingsEvaluated(settings: Settings)
     public abstract fun onProjectsEvaluated(gradle: Gradle)
     public abstract fun onBuildFinished(buildResult: BuildWorkResult)
-    public abstract fun onBuildScanError(error: BuildScanError)
+    public abstract fun onBuildScanError(error: String)
     public abstract fun onBuildScanPublished(publishedBuildScan: PublishedBuildScan)
     public abstract fun onExit()
 }

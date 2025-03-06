@@ -57,6 +57,7 @@ kotlin {
 			}
 		}
 		testFunctional {
+			dependsOn(main.get())
 			dependencies {
 				implementation(libs.kotest)
 				implementation(project.dependencies.gradleTestKit())
