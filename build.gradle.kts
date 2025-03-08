@@ -16,6 +16,7 @@
 
 
 plugins {
+	alias(main.plugins.publish)
 	alias(main.plugins.kotlin.dsl)
 	alias(main.plugins.kotlinx.serialization)
 }
@@ -76,6 +77,12 @@ gradlePlugin {
 		}
 	}
 	testSourceSets(sourceSets.testFunctional)
+}
+
+publishing {
+	repositories {
+		mavenLocal()
+	}
 }
 
 tasks {

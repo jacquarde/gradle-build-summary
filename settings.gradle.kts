@@ -35,6 +35,7 @@ dependencyResolutionManagement {
 		create("main") {
 			version("gradle", "8.12.1")
 			version("jvm",    "22")
+			plugin ("publish",                "com.gradle.plugin-publish").version("1.2.1")
 			plugin ("kotlin.dsl",             "org.gradle.kotlin.kotlin-dsl").version("5.1.2")
 			plugin ("kotlinx.serialization",  "org.jetbrains.kotlin.plugin.serialization").version("2.0.21")
 		}
