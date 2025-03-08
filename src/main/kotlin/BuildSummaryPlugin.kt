@@ -27,6 +27,8 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
+import org.gradle.api.provider.Property
+import org.eu.jacquarde.gradle.plugins.writers.MarkdownBadgeRenderer
 import org.eu.jacquarde.gradle.plugins.writers.MarkdownRenderer
 
 
@@ -35,32 +37,36 @@ abstract class BuildSummaryPlugin @Inject constructor(
         private val flowProviders: FlowProviders,
 ): Plugin<Gradle> {
 
-    private val summaryFileName = "build-summary.md"
-
-    public override fun apply(gradle: Gradle) {
-        BuildSummaryCollector(gradle, flowScope, flowProviders) {buildSummary ->
+    public override fun apply(target: Gradle) {
+        val configuration = BuildSummaryConfiguration
+                .createExtensionIn(target)
+                .createConvention()
+        BuildSummaryCollector(target, flowScope, flowProviders) {buildSummary ->
             buildSummary
-                    .render()
-                    .writeTo(gradle.summaryFile)
+                    .renderWith(configuration.renderer)
+                    .writeTo(target.buildDirectory(configuration.fileName))
         }
     }
 
-    private val Gradle.summaryFile: Path get() =
-        rootProject.layout.buildDirectory
-                .ensureIsCreated()
-                .resolve(summaryFileName)
-
+    private fun Gradle.buildDirectory(fileName: Property<String>): Path =
+            rootProject.layout.buildDirectory
+                    .ensureIsCreated()
+                    .resolve(fileName.get())
 }
 
 
 private fun DirectoryProperty.ensureIsCreated() =
         Files.createDirectories(this.toPath)
 
-private val DirectoryProperty.toPath: Path get() =
+private val DirectoryProperty.toPath: Path
+    get() =
         get().asFile.toPath()
 
-private fun BuildSummary.render(): String =
-        MarkdownRenderer(this).render()
+private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
+        when (renderer.get()) {
+            BuildSummaryRenderer.Plain -> MarkdownRenderer(this).render()
+            BuildSummaryRenderer.Badge -> MarkdownBadgeRenderer(this).render()
+        }
 
 private fun String.writeTo(file: Path?) =
         Files.writeString(file, this, StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE)

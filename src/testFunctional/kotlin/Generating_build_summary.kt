@@ -18,7 +18,7 @@
 import fixtures.GradleBuild
 import fixtures.append
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.shouldBe
 import java.nio.file.Path
 import kotlin.io.path.readText
 import org.eu.jacquarde.stubs.GradleBuildScanServer
@@ -119,8 +119,55 @@ class `Generating simple-project build summary`: StringSpec({
 		""".trimIndent()
 	}
 
+	"for a single gradle task with successful result configuring the renderer." {
+
+		val givenGradleBuild = GradleBuild().apply {
+			gradleVersion = "8.12.1"
+			initScript append """
+				import org.eu.jacquarde.gradle.plugins.*
+				apply<BuildSummaryPlugin>()
+				configure<BuildSummaryConfiguration> {
+					renderer = BuildSummaryRenderer.Badge
+				}
+			"""
+			settingsScript append """
+				rootProject.name = "root-project" 
+			"""
+		}
+
+		givenGradleBuild.build(":tasks")
+
+		givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			![](https://img.shields.io/badge/✔_root--project_-:tasks-0A0?&style=flat-square)
+			![](https://img.shields.io/badge/8.12.1-555?&style=flat-square&logo=Gradle)  
+		""".trimIndent()
+	}
+
+	"for a single gradle task with successful result renaming summary fie." {
+
+		val givenGradleBuild = GradleBuild().apply {
+			gradleVersion = "8.12.1"
+			initScript append """
+				import org.eu.jacquarde.gradle.plugins.*
+				apply<BuildSummaryPlugin>()
+				configure<BuildSummaryConfiguration> {
+					fileName = "summary.markdown"
+				}
+			"""
+			settingsScript append """
+				rootProject.name = "root-project" 
+			"""
+		}
+
+		givenGradleBuild.build(":tasks")
+
+		givenGradleBuild.projectFolder.resolve("build/summary.markdown") shouldContain """
+			✔ **root-project** `:tasks` ┃ _Gradle 8.12.1_  
+		""".trimIndent()
+	}
+
 })
 
 
 private infix fun Path.shouldContain(text: String) =
-		readText().shouldBeEqual(text)
+		readText().shouldBe(text)
