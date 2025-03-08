@@ -48,6 +48,7 @@ internal open class GradleBuild {
 	}
 
 	fun build(vararg task: String): BuildResult = runner.withArguments(*task).build()
+	fun buildAndFail(vararg task: String): BuildResult = runner.withArguments(*task).buildAndFail()
 
 	private val runner
 		get() = GradleRunner
