@@ -27,6 +27,9 @@ rootProject.name = "gradle-build-summary"
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
+		maven {
+			url = uri("https://plugins.gradle.org/m2/")
+		}
 	}
 	versionCatalogs {
 		create("main") {

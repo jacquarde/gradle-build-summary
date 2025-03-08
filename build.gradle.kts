@@ -34,6 +34,7 @@ kotlin {
 		main {
 			dependencies {
 				implementation(project.dependencies.gradleApi())
+				implementation("com.gradle:develocity-gradle-plugin:3.19.2")
 			}
 		}
 		shared {
@@ -56,6 +57,7 @@ kotlin {
 			}
 		}
 		testFunctional {
+			dependsOn(main.get())
 			dependencies {
 				implementation(libs.kotest)
 				implementation(project.dependencies.gradleTestKit())

@@ -18,7 +18,7 @@
 package org.eu.jacquarde.gradle.plugins.writers
 
 
-interface BuildSummaryRenderer {
+fun interface BuildSummaryRenderer {
 
     fun render(): String
 }
