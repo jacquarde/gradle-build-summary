@@ -34,7 +34,7 @@ class `MarkdownBadgeRender should`: StringSpec({
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
+        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -52,7 +52,7 @@ class `MarkdownBadgeRender should`: StringSpec({
                 hasBuildFailed = true
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
+        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -71,7 +71,7 @@ class `MarkdownBadgeRender should`: StringSpec({
                 buildScanUrl   = "test://buildscan"
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
+        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -90,7 +90,7 @@ class `MarkdownBadgeRender should`: StringSpec({
                 hasPublishFailed = true
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
+        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
 
         //language=Markdown
         actualMarkdown shouldBe """
@@ -108,7 +108,7 @@ class `MarkdownBadgeRender should`: StringSpec({
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer(givenBuildSummary).render()
+        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
 
         //language=Markdown
         actualMarkdown shouldBe """

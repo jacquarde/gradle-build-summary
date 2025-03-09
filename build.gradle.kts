@@ -23,7 +23,7 @@ plugins {
 
 
 group   = "org.eu.jacquarde"
-version = "0.1"
+version = "0.2-SNAPSHOT"
 
 
 kotlin {
@@ -35,7 +35,7 @@ kotlin {
 		main {
 			dependencies {
 				implementation(project.dependencies.gradleApi())
-				implementation("com.gradle:develocity-gradle-plugin:3.19.2")
+				implementation("com.gradle:develocity-gradle-plugin:3.19.2") // TODO: move to catalog
 			}
 		}
 		shared {

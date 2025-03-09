@@ -15,6 +15,7 @@
  */
 
 
+// TODO: move package to 'org.eu.jacquarde.gradle.plugins.buildsummary
 package org.eu.jacquarde.gradle.plugins
 
 
@@ -28,8 +29,8 @@ import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.provider.Property
+import org.eu.jacquarde.gradle.plugins.renderers.MarkdownRenderer
 import org.eu.jacquarde.gradle.plugins.writers.MarkdownBadgeRenderer
-import org.eu.jacquarde.gradle.plugins.writers.MarkdownRenderer
 
 
 abstract class BuildSummaryPlugin @Inject constructor(
@@ -64,8 +65,8 @@ private val DirectoryProperty.toPath: Path
 
 private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
         when (renderer.get()) {
-            BuildSummaryRenderer.Plain -> MarkdownRenderer(this).render()
-            BuildSummaryRenderer.Badge -> MarkdownBadgeRenderer(this).render()
+            BuildSummaryRenderer.Plain -> MarkdownRenderer().render(this)
+            BuildSummaryRenderer.Badge -> MarkdownBadgeRenderer().render(this)
         }
 
 private fun String.writeTo(file: Path?) =
