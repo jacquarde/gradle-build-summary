@@ -23,7 +23,7 @@ plugins {
 
 
 group   = "org.eu.jacquarde"
-version = "0.1"
+version = "0.2-SNAPSHOT"
 
 
 kotlin {
@@ -35,7 +35,7 @@ kotlin {
 		main {
 			dependencies {
 				implementation(project.dependencies.gradleApi())
-				implementation("com.gradle:develocity-gradle-plugin:3.19.2")
+				implementation(libs.gradle.develocity)
 			}
 		}
 		shared {
@@ -72,8 +72,8 @@ kotlin {
 gradlePlugin {
 	plugins {
 		create("buildSummaryPlugin") {
-			id                  = "org.eu.jacquarde.gradle.plugins.buildSummary"
-			implementationClass = "org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin"
+			id                  = "org.eu.jacquarde.gradle.plugins.buildsummary"
+			implementationClass = "org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin"
 		}
 	}
 	testSourceSets(sourceSets.testFunctional)

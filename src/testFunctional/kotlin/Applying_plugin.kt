@@ -32,7 +32,7 @@ class `Applying plugin`: StringSpec({
 			val givenGradle = GradleBuild().apply {
 				gradleVersion = version
 				initScript append """
-					apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+					apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 				"""
 			}
 
@@ -44,6 +44,5 @@ class `Applying plugin`: StringSpec({
 })
 
 
-// TODO: move this to utils and check kotest dataset dependency
 fun <DATA> with(vararg data: DATA, testBlock: (DATA)->Unit) =
 		data.forEach {testBlock(it)}

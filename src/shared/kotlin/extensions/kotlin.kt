@@ -17,7 +17,7 @@
 @file:OptIn(ExperimentalContracts::class)
 
 
-package org.eu.jacquarde.extensions
+package extensions
 
 
 import kotlin.contracts.ExperimentalContracts

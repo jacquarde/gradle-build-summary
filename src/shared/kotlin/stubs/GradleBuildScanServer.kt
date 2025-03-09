@@ -21,7 +21,7 @@
 )
 
 
-package org.eu.jacquarde.stubs
+package stubs
 
 
 import io.ktor.http.HttpHeaders
@@ -39,14 +39,14 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlin.concurrent.thread
 import kotlinx.serialization.Serializable
-import org.eu.jacquarde.utils.randomId
+import utils.randomId
 
 
 class GradleBuildScanServer(
-		private val host:         String       = "127.0.0.1",
-		private val port:         Int          = 8080,
-		public  var scanUrl:      String       = "http://$host:$port/s/$scanId",
-		public  var responseMode: ResponseMode = ResponseMode.Ok,
+        private val host:         String       = "127.0.0.1",
+        private val port:         Int          = 8080,
+        public  var scanUrl:      String       = "http://$host:$port/s/$scanId",
+        public  var responseMode: ResponseMode = ResponseMode.Ok,
 ): AutoCloseable {
 
 	enum class ResponseMode { Ok, Error }
@@ -61,7 +61,7 @@ class GradleBuildScanServer(
 		install(ContentNegotiation) {json()}
 		routing {
 			post("/scans/publish/gradle/{$agentVersion}/token")  {call.respondWithStub()}
-			post("/scans/publish/gradle/{$agentVersion}/upload") {}
+			post("/scans/publish/gradle/{$agentVersion}/upload") {} // TODO: stub this for the new functional tests
 		}
 	}
 
@@ -92,10 +92,10 @@ class GradleBuildScanServer(
 
 @Serializable
 private data class BuildAgentResponse(
-		private val id:              String = scanId,
-		private val scanUrl:         String,
-		private val scanUploadUrl:   String,
-		private val scanUploadToken: String = scanToken,
+        private val id:              String = scanId,
+        private val scanUrl:         String,
+        private val scanUploadUrl:   String,
+        private val scanUploadToken: String = scanToken,
 )
 
 

@@ -15,28 +15,24 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.writers
+package org.eu.jacquarde.gradle.plugins.buildsummary.renderers
 
 
-import org.intellij.lang.annotations.Language
-import org.eu.jacquarde.gradle.plugins.BuildSummary
+import org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummary
 
 
-class MarkdownRenderer(
-        private val buildSummary: BuildSummary,
-): BuildSummaryRenderer {
+class MarkdownRenderer: BuildSummaryRenderer {
 
-    @Language("Markdown")
-    override fun render() =
+    override fun render(buildSummary: BuildSummary): String =
         with(buildSummary) {
             "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  "
         }
 
-    private val buildOutcome = if (buildSummary.hasBuildFailed) "✖" else "✔"
-    private val taskList     = buildSummary.tasks.joinToString(" ")
-    private val buildScan    =
-            when (buildSummary.publishStatus) {
-                BuildSummary.PublishStatus.Published     -> " [BuildScan](${buildSummary.buildScanUrl})"
+    private val BuildSummary.buildOutcome get() = if (hasBuildFailed) "✖" else "✔"
+    private val BuildSummary.taskList     get() = tasks.joinToString(" ")
+    private val BuildSummary.buildScan    get() =
+            when (publishStatus) {
+                BuildSummary.PublishStatus.Published     -> " [BuildScan](${buildScanUrl})"
                 BuildSummary.PublishStatus.PublishFailed -> " ~~BuildScan~~"
                 else                                     -> ""
             }

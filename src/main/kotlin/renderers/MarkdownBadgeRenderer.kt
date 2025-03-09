@@ -15,28 +15,28 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.writers
+package org.eu.jacquarde.gradle.plugins.buildsummary.renderers
 
 
-import org.eu.jacquarde.gradle.plugins.BuildSummary
+import org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummary
 
 
 // SEE: https://shields.io/badges/static-badge
-class MarkdownBadgeRenderer(
-        private val buildSummary: BuildSummary,
-): BuildSummaryRenderer {
+class MarkdownBadgeRenderer: BuildSummaryRenderer {
 
-    override fun render() =
-            "$buildBadge$newLine$publishBadge$markdownHardLineBreak"
+    override fun render(buildSummary: BuildSummary): String =
+            with(buildSummary) {
+                "$buildBadge$newLine$publishBadge$markdownHardLineBreak"
+            }
 
-    private val buildBadge get() =
-        "![](${shieldBadgeUrl}/${buildOutcome}${rootProject}-${tasks}${buildColor}?${badgeStyle})"
+    private val BuildSummary.buildBadge get() =
+        "![](${shieldBadgeUrl}/${buildOutcome}${projectName}-${taskList}${buildColor}?${badgeStyle})"
 
-    private val gradleBadge  get() =
+    private val BuildSummary.gradleBadge  get() =
         "![](${shieldBadgeUrl}/${version}${label}${color}?${badgeStyle}${badgeLogo})"
 
-    private val publishBadge get() =
-        when (buildSummary.publishStatus) {
+    private val BuildSummary.publishBadge get() =
+        when (publishStatus) {
             BuildSummary.PublishStatus.Published -> "[$gradleBadge]($buildScanUrl)"
             else                                 -> gradleBadge
         }
@@ -47,22 +47,21 @@ class MarkdownBadgeRenderer(
     private val newLine               = "\n"
     private val shieldBadgeUrl        = "https://img.shields.io/badge"
 
-    private val buildOutcome = if (buildSummary.hasBuildFailed) "❌" else "✔"
-    private val buildColor   = if (buildSummary.hasBuildFailed) "-F55" else "-0A0"
-    private val buildScanUrl = buildSummary.buildScanUrl
-    private val rootProject  = " ${buildSummary.rootProject} ".scape()
-    private val tasks        = buildSummary.tasks.joinToString(separator = " ").scape()
-    private val version      = buildSummary.gradleVersion.scape()
+    private val BuildSummary.buildOutcome get() = if (hasBuildFailed) "❌" else "✔"
+    private val BuildSummary.buildColor   get() = if (hasBuildFailed) "-F55" else "-0A0"
+    private val BuildSummary.projectName  get() = " $rootProject ".scape()
+    private val BuildSummary.taskList     get() = tasks.joinToString(separator = " ").scape()
+    private val BuildSummary.version      get() = gradleVersion.scape()
 
-    private val label =
-            when (buildSummary.publishStatus) {
+    private val BuildSummary.label get() =
+            when (publishStatus) {
                 BuildSummary.PublishStatus.Published     -> "-BuildScan"
                 BuildSummary.PublishStatus.PublishFailed -> "-BuildScan_failed"
                 BuildSummary.PublishStatus.NotPublished  -> ""
             }
 
-    private val color =
-            when (buildSummary.publishStatus) {
+    private val BuildSummary.color get() =
+            when (publishStatus) {
                 BuildSummary.PublishStatus.Published     -> "-06A0CE"
                 BuildSummary.PublishStatus.PublishFailed -> "-F55"
                 BuildSummary.PublishStatus.NotPublished  -> "-555"

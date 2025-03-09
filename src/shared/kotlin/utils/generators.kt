@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.utils
+package utils
 
 
 internal fun randomId(length: Int, base: Int = 32): String =

@@ -22,10 +22,12 @@ import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readText
-import org.eu.jacquarde.stubs.GradleBuildScanServer
-import org.eu.jacquarde.utils.createFile
+import stubs.GradleBuildScanServer
+import utils.createFile
 
 
+// TODO: generate tests for when using the develocity in foreground
+// CHECK: the use of develocity in background on CI
 class `Generating simple-project build summary`: StringSpec({
 
     val develocityServer = GradleBuildScanServer()
@@ -35,7 +37,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "root-project" 
@@ -55,7 +57,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "an-project"
@@ -81,7 +83,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "root-project"
@@ -106,7 +108,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "root-project"
@@ -126,10 +128,11 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				import org.eu.jacquarde.gradle.plugins.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.*
 				apply<BuildSummaryPlugin>()
 				configure<BuildSummaryConfiguration> {
-					renderer = BuildSummaryRenderer.Badge
+					renderer = MarkdownBadgeRenderer()
 				}
 			"""
             settingsScript append """
@@ -145,12 +148,37 @@ class `Generating simple-project build summary`: StringSpec({
 		""".trimIndent()
     }
 
+    "for a single gradle task with successful result with inline renderer." {
+
+        val givenGradleBuild = GradleBuild().apply {
+            gradleVersion = "8.12.1"
+            initScript append """
+				import org.eu.jacquarde.gradle.plugins.buildsummary.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.*
+				apply<BuildSummaryPlugin>()
+				configure<BuildSummaryConfiguration> {
+					renderer.set({it.toString()})
+				}
+			"""
+            settingsScript append """
+				rootProject.name = "root-project" 
+			"""
+        }
+
+        givenGradleBuild.build(":tasks")
+
+        givenGradleBuild.projectFolder.resolve("build/build-summary.md") shouldContain """
+			BuildSummary(rootProject=root-project, tasks=[:tasks], gradleVersion=8.12.1, hasBuildFailed=false, buildScanUrl=, hasPublishFailed=false)
+		""".trimIndent()
+    }
+
+
     "for a single gradle task with successful result renaming summary fie." {
 
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				import org.eu.jacquarde.gradle.plugins.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.*
 				apply<BuildSummaryPlugin>()
 				configure<BuildSummaryConfiguration> {
 					fileName = "summary.markdown"
@@ -173,7 +201,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "test-project"
@@ -206,7 +234,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "test-project"

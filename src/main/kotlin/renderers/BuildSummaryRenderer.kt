@@ -15,10 +15,20 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.writers
+package org.eu.jacquarde.gradle.plugins.buildsummary.renderers
 
 
+import org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummary
+
+
+/**
+ * Functional interface to [render].
+ */
 fun interface BuildSummaryRenderer {
 
-    fun render(): String
+
+    /**
+     * Transforms a [BuildSummary] to a [String] so to be consumed.
+     */
+    fun render(buildSummary: BuildSummary): String
 }

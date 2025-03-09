@@ -25,8 +25,8 @@ import org.gradle.internal.classpath.DefaultClassPath
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading
-import org.eu.jacquarde.utils.TemporalFolderManager
-import org.eu.jacquarde.utils.createFile
+import utils.TemporalFolderManager
+import utils.createFile
 
 
 internal open class GradleBuild {
