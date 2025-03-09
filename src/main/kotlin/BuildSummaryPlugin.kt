@@ -29,8 +29,7 @@ import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.provider.Property
-import org.eu.jacquarde.gradle.plugins.renderers.MarkdownRenderer
-import org.eu.jacquarde.gradle.plugins.writers.MarkdownBadgeRenderer
+import org.eu.jacquarde.gradle.plugins.renderers.BuildSummaryRenderer
 
 
 abstract class BuildSummaryPlugin @Inject constructor(
@@ -49,10 +48,16 @@ abstract class BuildSummaryPlugin @Inject constructor(
         }
     }
 
+    private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
+            renderer.get().render(this)
+
     private fun Gradle.buildDirectory(fileName: Property<String>): Path =
             rootProject.layout.buildDirectory
                     .ensureIsCreated()
                     .resolve(fileName.get())
+
+    private fun String.writeTo(file: Path?) =
+            Files.writeString(file, this, StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
 }
 
 
@@ -62,12 +67,3 @@ private fun DirectoryProperty.ensureIsCreated() =
 private val DirectoryProperty.toPath: Path
     get() =
         get().asFile.toPath()
-
-private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
-        when (renderer.get()) {
-            BuildSummaryRenderer.Plain -> MarkdownRenderer().render(this)
-            BuildSummaryRenderer.Badge -> MarkdownBadgeRenderer().render(this)
-        }
-
-private fun String.writeTo(file: Path?) =
-        Files.writeString(file, this, StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE)

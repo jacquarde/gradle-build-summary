@@ -21,6 +21,7 @@ package org.eu.jacquarde.gradle.plugins.writers
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.eu.jacquarde.gradle.plugins.BuildSummary
+import org.eu.jacquarde.gradle.plugins.renderers.MarkdownBadgeRenderer
 
 
 class `MarkdownBadgeRender should`: StringSpec({

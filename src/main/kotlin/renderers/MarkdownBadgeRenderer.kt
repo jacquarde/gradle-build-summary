@@ -15,11 +15,10 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.writers
+package org.eu.jacquarde.gradle.plugins.renderers
 
 
 import org.eu.jacquarde.gradle.plugins.BuildSummary
-import org.eu.jacquarde.gradle.plugins.renderers.BuildSummaryRenderer
 
 
 // SEE: https://shields.io/badges/static-badge
