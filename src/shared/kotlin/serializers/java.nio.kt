@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.serializers
+package serializers
 
 
 import java.nio.file.Path

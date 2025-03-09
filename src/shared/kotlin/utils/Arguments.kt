@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.utils
+package utils
 
 
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -27,10 +27,10 @@ import kotlinx.serialization.encodeToHexString
 
 @OptIn(ExperimentalSerializationApi::class)
 internal class Arguments<RECEIVER: Any>(
-		val runner: ProcessRunner<RECEIVER>,
-		val action: RECEIVER.()->Unit,
-		private val serializer: KSerializer<RECEIVER>,
-		val receiver: RECEIVER,
+        val runner: ProcessRunner<RECEIVER>,
+        val action: RECEIVER.()->Unit,
+        private val serializer: KSerializer<RECEIVER>,
+        val receiver: RECEIVER,
 ) {
 	@Suppress("UNCHECKED_CAST")
 	constructor(args: Array<String>): this(

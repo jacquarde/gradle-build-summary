@@ -22,8 +22,8 @@ import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.readText
-import org.eu.jacquarde.stubs.GradleBuildScanServer
-import org.eu.jacquarde.utils.createFile
+import stubs.GradleBuildScanServer
+import utils.createFile
 
 
 // TODO: generate tests for when using the develocity in foreground
@@ -37,7 +37,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "root-project" 
@@ -57,7 +57,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "an-project"
@@ -83,7 +83,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "root-project"
@@ -108,7 +108,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "root-project"
@@ -128,8 +128,8 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				import org.eu.jacquarde.gradle.plugins.*
-				import org.eu.jacquarde.gradle.plugins.renderers.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.*
 				apply<BuildSummaryPlugin>()
 				configure<BuildSummaryConfiguration> {
 					renderer = MarkdownBadgeRenderer()
@@ -153,8 +153,8 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				import org.eu.jacquarde.gradle.plugins.*
-				import org.eu.jacquarde.gradle.plugins.renderers.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.*
 				apply<BuildSummaryPlugin>()
 				configure<BuildSummaryConfiguration> {
 					renderer.set({it.toString()})
@@ -178,7 +178,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				import org.eu.jacquarde.gradle.plugins.*
+				import org.eu.jacquarde.gradle.plugins.buildsummary.*
 				apply<BuildSummaryPlugin>()
 				configure<BuildSummaryConfiguration> {
 					fileName = "summary.markdown"
@@ -201,7 +201,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "test-project"
@@ -234,7 +234,7 @@ class `Generating simple-project build summary`: StringSpec({
         val givenGradleBuild = GradleBuild().apply {
             gradleVersion = "8.12.1"
             initScript append """
-				apply<org.eu.jacquarde.gradle.plugins.BuildSummaryPlugin>()
+				apply<org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin>()
 			"""
             settingsScript append """
 				rootProject.name = "test-project"

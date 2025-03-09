@@ -18,7 +18,7 @@
 @file:UseSerializers(PathSerializer::class)
 
 
-package org.eu.jacquarde.utils
+package utils
 
 
 import java.nio.file.Files
@@ -31,8 +31,8 @@ import kotlin.io.path.createFile
 import kotlin.io.path.deleteRecursively
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import org.eu.jacquarde.extensions.also
-import org.eu.jacquarde.serializers.PathSerializer
+import extensions.also
+import serializers.PathSerializer
 
 
 @Serializable

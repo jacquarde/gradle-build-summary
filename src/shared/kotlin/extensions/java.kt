@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.extensions
+package extensions
 
 
 import java.util.Optional

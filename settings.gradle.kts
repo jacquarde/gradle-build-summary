@@ -45,6 +45,8 @@ dependencyResolutionManagement {
 			version("kotlinx.coroutines",    "1.10.1")
 			version("ktor",                  "3.1.0")
 			version("arrow",                 "2.0.1")
+			version("gradle",                "3.19.2")
+			library("gradle.develocity",          "com.gradle", "develocity-gradle-plugin").versionRef("gradle")
 			library("arrow.resilience",           "io.arrow-kt", "arrow-resilience").versionRef("arrow")
 			library("kotest",                     "io.kotest", "kotest-runner-junit5").versionRef("kotest")
 			library("kotlinx.coroutines",         "org.jetbrains.kotlinx", "kotlinx-coroutines-core").versionRef("kotlinx.coroutines")

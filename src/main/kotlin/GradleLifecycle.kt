@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins
+package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
 import com.gradle.develocity.agent.gradle.internal.DevelocityConfigurationInternal

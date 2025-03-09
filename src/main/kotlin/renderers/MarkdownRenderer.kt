@@ -15,10 +15,10 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.renderers
+package org.eu.jacquarde.gradle.plugins.buildsummary.renderers
 
 
-import org.eu.jacquarde.gradle.plugins.BuildSummary
+import org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummary
 
 
 class MarkdownRenderer: BuildSummaryRenderer {

@@ -15,8 +15,7 @@
  */
 
 
-// TODO: move package to 'org.eu.jacquarde.gradle.plugins.buildsummary
-package org.eu.jacquarde.gradle.plugins
+package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
 import java.nio.file.Files
@@ -29,7 +28,7 @@ import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.provider.Property
-import org.eu.jacquarde.gradle.plugins.renderers.BuildSummaryRenderer
+import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
 
 
 abstract class BuildSummaryPlugin @Inject constructor(
@@ -38,8 +37,7 @@ abstract class BuildSummaryPlugin @Inject constructor(
 ): Plugin<Gradle> {
 
     public override fun apply(target: Gradle) {
-        val configuration = BuildSummaryConfiguration
-                .createExtensionIn(target)
+        val configuration = BuildSummaryConfiguration.createExtensionIn(target)
                 .createConvention()
         BuildSummaryCollector(target, flowScope, flowProviders) {buildSummary ->
             buildSummary

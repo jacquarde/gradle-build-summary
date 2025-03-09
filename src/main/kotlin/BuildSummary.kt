@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins
+package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
 data class BuildSummary(

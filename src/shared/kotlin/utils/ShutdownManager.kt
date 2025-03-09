@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.utils
+package utils
 
 
 import arrow.resilience.Schedule
@@ -24,7 +24,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
-import org.eu.jacquarde.extensions.wait
+import extensions.wait
 
 
 object ShutdownManager {

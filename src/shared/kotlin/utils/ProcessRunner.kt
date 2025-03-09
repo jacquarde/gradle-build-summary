@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.utils
+package utils
 
 
 import kotlinx.serialization.KSerializer

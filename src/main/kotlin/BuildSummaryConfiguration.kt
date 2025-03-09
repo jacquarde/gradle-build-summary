@@ -15,15 +15,15 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins
+package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
 import kotlin.reflect.jvm.jvmName
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
-import org.eu.jacquarde.gradle.plugins.renderers.BuildSummaryRenderer
-import org.eu.jacquarde.gradle.plugins.renderers.MarkdownRenderer
+import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
+import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.MarkdownRenderer
 
 
 abstract class BuildSummaryConfiguration {
