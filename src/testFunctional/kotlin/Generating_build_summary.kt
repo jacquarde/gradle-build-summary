@@ -66,6 +66,9 @@ class `Generating simple-project build summary`: StringSpec({
 				}
 				develocity {
 					server = "${develocityServer.url}"
+                    buildScan {
+                        uploadInBackground.set(false)
+                    }
 				}
 			"""
         }
@@ -171,7 +174,6 @@ class `Generating simple-project build summary`: StringSpec({
 			BuildSummary(rootProject=root-project, tasks=[:tasks], gradleVersion=8.12.1, hasBuildFailed=false, buildScanUrl=, hasPublishFailed=false)
 		""".trimIndent()
     }
-
 
     "for a single gradle task with successful result renaming summary fie." {
 

@@ -60,8 +60,8 @@ class GradleBuildScanServer(
 	private val server = embeddedServer(Netty, host = host, port = port) {
 		install(ContentNegotiation) {json()}
 		routing {
-			post("/scans/publish/gradle/{$agentVersion}/token")  {call.respondWithStub()}
-			post("/scans/publish/gradle/{$agentVersion}/upload") {} // TODO: stub this for the new functional tests
+			post("/scans/publish/gradle/{$agentVersion}/token")  {call.respondScanAck()}
+			post("/scans/publish/gradle/{$agentVersion}/upload") {call.respondScanUploadAck()}
 		}
 	}
 
@@ -71,7 +71,12 @@ class GradleBuildScanServer(
 		}
 	}
 
-	private suspend fun RoutingCall.respondWithStub() {
+	private suspend fun RoutingCall.respondScanUploadAck() {
+		response.header(HttpHeaders.ContentType, "application/vnd.gradle.scan-upload-ack+json")
+		respond(ScanUploadResponse())
+	}
+
+	private suspend fun RoutingCall.respondScanAck() {
 		response.header(HttpHeaders.ContentType, "application/vnd.gradle.scan-ack+json")
 		when (responseMode) {
 			ResponseMode.Ok    -> respond(stubResponse)
@@ -80,7 +85,7 @@ class GradleBuildScanServer(
 	}
 
 	private val RoutingCall.stubResponse
-		get() = BuildAgentResponse(
+		get() = ScanResponse(
 				scanUrl       = scanUrl,
 				scanUploadUrl = "/scans/publish/gradle/${pathParameters.agentVersion}/upload",
 		)
@@ -91,12 +96,16 @@ class GradleBuildScanServer(
 
 
 @Serializable
-private data class BuildAgentResponse(
+private class ScanResponse(
         private val id:              String = scanId,
         private val scanUrl:         String,
         private val scanUploadUrl:   String,
         private val scanUploadToken: String = scanToken,
 )
+
+
+@Serializable
+private class ScanUploadResponse
 
 
 private val scanId    = randomId(length = 13)
