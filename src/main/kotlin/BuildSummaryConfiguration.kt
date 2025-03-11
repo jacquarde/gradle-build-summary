@@ -19,7 +19,7 @@ package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
 import kotlin.reflect.jvm.jvmName
-import org.gradle.api.initialization.Settings
+import org.gradle.api.invocation.Gradle
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
@@ -31,7 +31,7 @@ abstract class BuildSummaryConfiguration {
     private val summaryFileName = "build-summary.md"
 
     companion object {
-        fun createExtensionIn(target: Settings): BuildSummaryConfiguration =
+        fun createExtensionIn(target: Gradle): BuildSummaryConfiguration =
                 target.extensions.create<BuildSummaryConfiguration>(BuildSummaryConfiguration::class.jvmName)
     }
 
