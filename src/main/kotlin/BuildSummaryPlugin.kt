@@ -18,50 +18,17 @@
 package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardOpenOption
-import javax.inject.Inject
 import org.gradle.api.Plugin
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.flow.FlowProviders
-import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
-import org.gradle.api.provider.Property
-import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
 
 
-abstract class BuildSummaryPlugin @Inject constructor(
-        private val flowScope: FlowScope,
-        private val flowProviders: FlowProviders,
-): Plugin<Gradle> {
+abstract class BuildSummaryPlugin: Plugin<Gradle> {
 
     public override fun apply(target: Gradle) {
-        val configuration = BuildSummaryConfiguration.createExtensionIn(target)
-                .createConvention()
-        BuildSummaryCollector(target, flowScope, flowProviders) {buildSummary ->
-            buildSummary
-                    .renderWith(configuration.renderer)
-                    .writeTo(target.buildDirectory(configuration.fileName))
+        target.settingsEvaluated {
+            gradle.settingsEvaluated {
+                pluginManager.apply(BuildSummarySettingsPlugin::class.java)
+            }
         }
     }
-
-    private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
-            renderer.get().render(this)
-
-    private fun Gradle.buildDirectory(fileName: Property<String>): Path =
-            rootProject.layout.buildDirectory
-                    .ensureIsCreated()
-                    .resolve(fileName.get())
-
-    private fun String.writeTo(file: Path?) =
-            Files.writeString(file, this, StandardOpenOption.APPEND, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
 }
-
-
-private fun DirectoryProperty.ensureIsCreated() =
-        Files.createDirectories(this.toPath)
-
-private val DirectoryProperty.toPath: Path
-    get() =
-        get().asFile.toPath()
