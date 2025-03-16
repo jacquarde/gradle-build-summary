@@ -17,53 +17,79 @@
 
 package org.eu.jacquarde.gradle.plugins.buildsummary
 
-
-import com.gradle.develocity.agent.gradle.scan.PublishedBuildScan
-import org.gradle.api.flow.BuildWorkResult
-import org.gradle.api.flow.FlowProviders
-import org.gradle.api.flow.FlowScope
-import org.gradle.api.initialization.Settings
+import java.nio.file.Files
+import java.nio.file.Path
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.invocation.Gradle
+import org.gradle.api.logging.LogLevel
+import org.gradle.internal.logging.text.StyledTextOutput.Style
+import org.gradle.internal.logging.text.StyledTextOutputFactory
+import org.gradle.kotlin.dsl.support.serviceOf
 
+//private val summary = object : Summary() {}
 
 internal class BuildSummaryCollector(
-        gradle:                 Gradle,
-        flowScope:              FlowScope,
-        flowProviders:          FlowProviders,
-        private val onFinished: (BuildSummary)->Unit,
-): GradleLifecycle(gradle, flowScope, flowProviders) {
+        private val onFinished:      (BuildSummaryConfiguration)->Writer,
+) {
 
-    private val summary = Summary()
 
-    override fun onSettingsEvaluated(settings: Settings) {
-        summary.rootProject = settings.rootProject.name
-        summary.tasks       = settings.startParameter.taskNames.toList()
+    fun xx(gradleLifecycle: GradleLifecycle, configuration: BuildSummaryConfiguration) {
+        val summary         = SummaryOld()
+        lateinit var pro : String
+        lateinit var buildDirectory: Path
+        println("###### BuildSummaryCollector ######")
+        gradleLifecycle.apply {
+            onSettingsEvaluated = {settings ->
+                pro = settings.rootProject.name
+                println("1) $pro (!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                summary.rootProject = settings.rootProject.name
+                summary.tasks       = settings.startParameter.taskNames.toList()
+                summary.gradleVersion = settings.gradle.gradleVersion
+            }
+            onProjectsEvaluated = {projects ->
+//                println("2)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                buildDirectory = projects.buildDirectory
+                val log = projects.serviceOf<StyledTextOutputFactory>().create("BuildSummary", LogLevel.LIFECYCLE)
+                log.withStyle(Style.Success).println("2) $pro (!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//                summary.gradleVersion = projects.gradleVersion
+            }
+            onBuildFinished = {buildResult ->
+                println("3) $pro (!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ${buildResult.failure.isPresent}")
+                summary.hasBuildFailed = buildResult.failure.isPresent
+            }
+            onBuildScanError = {
+                println("4.1)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                summary.hasPublishFailed = true
+            }
+//            onBuildScanPublished = { publishedBuildScan ->
+//                println("4.2)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//                summary.hasPublishFailed = false
+//                summary.buildScanUrl     = publishedBuildScan.buildScanUri.toString()
+//            }
+            onExit = {
+                println("5) $pro (!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+//                summary.toBuildSummary()
+//                        .also { println(it) }
+//                        .let{onFinished(configuration).write(it, buildDirectory.resolve(configuration.fileName.get())) }
+            }
+        }.xx()
     }
 
-    override fun onProjectsEvaluated(gradle: Gradle) {
-        summary.gradleVersion = gradle.gradleVersion
-    }
 
-    override fun onBuildFinished(buildResult: BuildWorkResult) {
-        summary.hasBuildFailed = buildResult.failure.isPresent
-    }
-
-    override fun onBuildScanError(error: String) {
-        summary.hasPublishFailed = true
-    }
-
-    override fun onBuildScanPublished(publishedBuildScan: PublishedBuildScan) {
-        summary.hasPublishFailed = false
-        summary.buildScanUrl     = publishedBuildScan.buildScanUri.toString()
-    }
-
-    override fun onExit() {
-        onFinished(summary.toBuildSummary())
-    }
+    private val Gradle.buildDirectory: Path get() =
+        rootProject.layout.buildDirectory
+                .ensureIsCreated()
 }
 
+private fun DirectoryProperty.ensureIsCreated() =
+        Files.createDirectories(this.toPath)
 
-private class Summary {
+private val DirectoryProperty.toPath: Path
+    get() =
+        get().asFile.toPath()
+
+
+private class SummaryOld {
     var rootProject:      String?      = null
     var tasks:            List<String> = emptyList()
     var gradleVersion:    String?      = null

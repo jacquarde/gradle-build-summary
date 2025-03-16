@@ -18,6 +18,7 @@
 package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
+import com.gradle.develocity.agent.gradle.DevelocityConfiguration
 import com.gradle.develocity.agent.gradle.internal.DevelocityConfigurationInternal
 import com.gradle.develocity.agent.gradle.scan.PublishedBuildScan
 import org.gradle.api.flow.BuildWorkResult
@@ -32,30 +33,41 @@ import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.always
 
 
-internal abstract class GradleLifecycle(
-        private val gradle: Gradle,
-        private val flowScope: FlowScope,
+@Suppress("UnstableApiUsage", "UnstableTypeUsedInSignature")
+internal class GradleLifecycle(
+        private val gradle:        Gradle,
+        private val flowScope:     FlowScope,
         private val flowProviders: FlowProviders,
 ) {
-    init {
-        gradle.settingsEvaluated(::onSettingsEvaluated)
-        gradle.projectsEvaluated(::onProjectsEvaluated)
+    public var onSettingsEvaluated:  (Settings)           -> Unit = {}
+    public var onProjectsEvaluated:  (Gradle)             -> Unit = {}
+    public var onBuildFinished:      (BuildWorkResult)    -> Unit = {}
+    public var onBuildScanError:     (String)             -> Unit = {}
+    public var onBuildScanPublished: (PublishedBuildScan) -> Unit = {}
+    public var onExit:               ()                   -> Unit = {}
+
+    fun xx() {
+        println("###### GradleLifecycle ######")
+        gradle.settingsEvaluated(onSettingsEvaluated)
+        gradle.projectsEvaluated(onProjectsEvaluated)
         gradle.settingsEvaluated {
-            develocity?.buildScan?.onError(::onBuildScanError)
-            develocity?.buildScan?.buildScanPublished(::onBuildScanPublished)
+//            develocity?.buildScan?.onError(onBuildScanError)
+            println("builscan: ${develocity?.buildScan}")
+            develocity?.buildScan
+                    ?.buildScanPublished(onBuildScanPublished)
         }
         flowScope.always(BuildFinishedAction::class) {
             parameters.buildResult.set(flowProviders.buildWorkResult)
-            parameters.action.set(::onBuildFinished)
+            parameters.action.set(onBuildFinished)
         }
-        gradleFinished()
+        gradle.gradleFinished(flowScope, flowProviders)
     }
 
-    private fun gradleFinished() {
+    private fun Gradle.gradleFinished(flowScope: FlowScope, flowProviders: FlowProviders) {
         gradle.settingsEvaluated {
             when (val x = extensions.findByName("develocity")) {
                 is DevelocityConfigurationInternal -> develocityIsLast(x)
-                else                               -> buildIsLast()
+                else                               -> buildIsLast(flowScope, flowProviders)
             }
         }
     }
@@ -65,23 +77,16 @@ internal abstract class GradleLifecycle(
         e.buildScan.buildScanPublished {onExit()}
     }
 
-    private fun buildIsLast() {
-        flowScope.always(BuildFinishedAction::class) {
+    private fun buildIsLast(flowScope: FlowScope, flowProviders: FlowProviders) {
+        flowScope.always(BuildExitedAction::class) {
             parameters.buildResult.set(flowProviders.buildWorkResult)
-            parameters.action.set{onExit()}
+            parameters.action.set(onExit)
         }
     }
 
-    private val Settings.develocity: DevelocityConfigurationInternal?
+    private val Settings.develocity: DevelocityConfiguration?
         get() =
-            extensions.findByName("develocity") as? DevelocityConfigurationInternal
-
-    public abstract fun onSettingsEvaluated(settings: Settings)
-    public abstract fun onProjectsEvaluated(gradle: Gradle)
-    public abstract fun onBuildFinished(buildResult: BuildWorkResult)
-    public abstract fun onBuildScanError(error: String)
-    public abstract fun onBuildScanPublished(publishedBuildScan: PublishedBuildScan)
-    public abstract fun onExit()
+            extensions.findByName("develocity") as? DevelocityConfiguration
 }
 
 
@@ -95,5 +100,18 @@ public class BuildFinishedAction
 
     override fun execute(parameters: Parameters) {
         parameters.action.get().invoke(parameters.buildResult.get())
+    }
+}
+
+public class BuildExitedAction
+    : FlowAction<BuildExitedAction.Parameters> {
+
+    public interface Parameters: FlowParameters {
+        @get:Input val buildResult: Property<BuildWorkResult>
+        @get:Input val action: Property<()->Unit>
+    }
+
+    override fun execute(parameters: Parameters) {
+        parameters.action.get().invoke()
     }
 }

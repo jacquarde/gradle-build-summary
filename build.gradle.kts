@@ -23,7 +23,7 @@ plugins {
 
 
 group   = "org.eu.jacquarde"
-version = "0.2-SNAPSHOT"
+version = "0.2-beta-2"
 
 
 kotlin {
@@ -34,7 +34,7 @@ kotlin {
 	sourceSets {
 		main {
 			dependencies {
-				implementation(project.dependencies.gradleApi())
+//				implementation(project.dependencies.gradleApi())
 				implementation(libs.gradle.develocity)
 			}
 		}
@@ -76,7 +76,7 @@ gradlePlugin {
 			implementationClass = "org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin"
 		}
 	}
-	testSourceSets(sourceSets.testFunctional)
+//	testSourceSets(sourceSets.testFunctional)
 }
 
 publishing {

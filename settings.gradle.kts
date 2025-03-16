@@ -27,9 +27,7 @@ rootProject.name = "gradle-build-summary"
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
-		maven {
-			url = uri("https://plugins.gradle.org/m2/")
-		}
+		gradlePluginPortal()
 	}
 	versionCatalogs {
 		create("main") {
@@ -46,7 +44,7 @@ dependencyResolutionManagement {
 			version("ktor",                  "3.1.0")
 			version("arrow",                 "2.0.1")
 			version("gradle",                "3.19.2")
-			library("gradle.develocity",          "com.gradle", "develocity-gradle-plugin").versionRef("gradle")
+			library("gradle_develocity",          "com.gradle.develocity", "com.gradle.develocity.gradle.plugin").versionRef("gradle")
 			library("arrow.resilience",           "io.arrow-kt", "arrow-resilience").versionRef("arrow")
 			library("kotest",                     "io.kotest", "kotest-runner-junit5").versionRef("kotest")
 			library("kotlinx.coroutines",         "org.jetbrains.kotlinx", "kotlinx-coroutines-core").versionRef("kotlinx.coroutines")
@@ -63,8 +61,9 @@ dependencyResolutionManagement {
 }
 
 develocity {
+	server = "http://127.0.0.1:8080"
 	buildScan {
-		publishing.onlyIf{ System.getenv("CI") != null  }
+//		publishing.onlyIf{ System.getenv("CI") != null  }
 		termsOfUseUrl   = "https://gradle.com/help/legal-terms-of-use"
 		termsOfUseAgree = "yes"
 	}

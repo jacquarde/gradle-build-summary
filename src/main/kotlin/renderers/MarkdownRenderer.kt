@@ -25,7 +25,7 @@ class MarkdownRenderer: BuildSummaryRenderer {
 
     override fun render(buildSummary: BuildSummary): String =
         with(buildSummary) {
-            "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  "
+            "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  \n"
         }
 
     private val BuildSummary.buildOutcome get() = if (hasBuildFailed) "✖" else "✔"
