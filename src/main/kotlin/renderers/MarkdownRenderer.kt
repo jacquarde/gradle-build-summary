@@ -25,11 +25,18 @@ class MarkdownRenderer: BuildSummaryRenderer {
 
     override fun render(buildSummary: BuildSummary): String =
         with(buildSummary) {
-            "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  "
+            "$id$buildOutcome **$rootProject**$taskList ┃ _Gradle $gradleVersion${buildScan}_  "
         }
 
+    override fun getId(string: String): Int =
+            """^\[\]\((\d+)\)""".toRegex()
+                    .findGroupsIn(string)
+                    .firstOrNull()
+                    ?.toInt() ?: -1
+
+    private val BuildSummary.id           get() = "[]($invocationId)"
     private val BuildSummary.buildOutcome get() = if (hasBuildFailed) "✖" else "✔"
-    private val BuildSummary.taskList     get() = tasks.joinToString(" ")
+    private val BuildSummary.taskList     get() = if (tasks.isEmpty()) "" else " `${tasks.joinToString(" ")}`"
     private val BuildSummary.buildScan    get() =
             when (publishStatus) {
                 BuildSummary.PublishStatus.Published     -> " [BuildScan](${buildScanUrl})"
@@ -37,3 +44,11 @@ class MarkdownRenderer: BuildSummaryRenderer {
                 else                                     -> ""
             }
 }
+
+
+//region Private extensions
+
+private fun Regex.findGroupsIn(string: String): List<String> =
+        find(string)?.groupValues?.drop(1) ?: emptyList()
+
+//endregion

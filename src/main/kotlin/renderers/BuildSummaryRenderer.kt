@@ -24,11 +24,30 @@ import org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummary
 /**
  * Functional interface to [render].
  */
-fun interface BuildSummaryRenderer {
+interface BuildSummaryRenderer {
 
 
     /**
      * Transforms a [BuildSummary] to a [String] so to be consumed.
      */
     fun render(buildSummary: BuildSummary): String
+
+    fun getId(string: String): Int
+
+    fun add(summary: BuildSummary, to: List<String>): List<String> =
+            to.withIndex()
+                    .associateBy { getId(it.value) }
+                    .toMutableMap()
+                    .apply {
+                        putWithIndex(getId(render(summary)), render(summary))
+                    }
+                    .values
+                    .sortedBy { it.index }
+                    .map { it.value }
+
+}
+
+
+private fun MutableMap<Int, IndexedValue<String>>.putWithIndex(key: Int, value: String) {
+    put(key, IndexedValue(get(key)?.index?:Int.MAX_VALUE, value))
 }

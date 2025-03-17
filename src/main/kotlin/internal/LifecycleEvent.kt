@@ -14,36 +14,17 @@
  * limitations under the License.
  */
 
-
-package utils
-
-
-import kotlinx.serialization.KSerializer
+package org.eu.jacquarde.gradle.plugins.buildsummary.internal
 
 
-internal abstract class ProcessRunner<ARGUMENT: Any> {
+import org.gradle.api.flow.BuildWorkResult
+import org.gradle.api.initialization.Settings
 
-	abstract fun run(
-			receiver: ARGUMENT,
-			lambda: ARGUMENT.()->Unit,
-	): Unit
 
-	fun start(
-			receiver: ARGUMENT,
-			lambda: ARGUMENT.()->Unit = {},
-			serializer: KSerializer<ARGUMENT>,
-	): Unit =
-			JvmProcess(
-					mainClass = this::class.java.name,
-					Arguments(this, lambda, serializer, receiver).toStringList()
-			).start()
-
-	private companion object {
-		@JvmStatic
-		fun main(args: Array<String>) {
-			with(Arguments<Any>(args)) {
-				runner.run(receiver, action)
-			}
-		}
-	}
+@Suppress("UnstableTypeUsedInSignature", "UnstableApiUsage")
+sealed interface LifecycleEvent {
+    class  SettingsEvaluated  (val settings     : Settings)        :LifecycleEvent
+    class  BuildFinished      (val buildResult  : BuildWorkResult) :LifecycleEvent
+    class  BuildScanPublished (val buildScanUrl :String)           :LifecycleEvent
+    object BuildScanFailed                                         :LifecycleEvent
 }

@@ -22,47 +22,45 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummary
 
-class `MarkdownBadgeRender should`: StringSpec({
+
+class `MarkdownRenderer should`: StringSpec({
 
     "generate a markdown for a successful `BuildSummary` without build scan URL." {
 
         val givenBuildSummary = BuildSummary(
+                invocationId   = 123456789,
                 rootProject    = "root-project",
                 tasks          = listOf(":build"),
                 gradleVersion  = "8.12.1",
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
+        val actualMarkdown = MarkdownRenderer().render(givenBuildSummary)
 
         //language=Markdown
-        actualMarkdown shouldBe """
-            ![](https://img.shields.io/badge/✔_root--project_-:build-0A0?&style=flat-square)
-            ![](https://img.shields.io/badge/8.12.1-555?&style=flat-square&logo=Gradle)  
-		""".trimIndent()
+        actualMarkdown shouldBe "[](123456789)✔ **root-project** `:build` ┃ _Gradle 8.12.1_  "
     }
 
     "generate a markdown for a failed `BuildSummary` without build scan URL." {
 
         val givenBuildSummary = BuildSummary(
+                invocationId   = 123456009,
                 rootProject    = "another-root-project",
                 tasks          = listOf(":check-all"),
                 gradleVersion  = "8.12.1-rc2",
                 hasBuildFailed = true
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
+        val actualMarkdown = MarkdownRenderer().render(givenBuildSummary)
 
         //language=Markdown
-        actualMarkdown shouldBe """
-            ![](https://img.shields.io/badge/❌_another--root--project_-:check--all-F55?&style=flat-square)
-            ![](https://img.shields.io/badge/8.12.1--rc2-555?&style=flat-square&logo=Gradle)  
-		""".trimIndent()
+        actualMarkdown shouldBe "[](123456009)✖ **another-root-project** `:check-all` ┃ _Gradle 8.12.1-rc2_  "
     }
 
     "generate a markdown for a successful `BuildSummary` with build scan URL." {
 
         val givenBuildSummary = BuildSummary(
+                invocationId   = 123456789,
                 rootProject    = "project",
                 tasks          = listOf(":build"),
                 gradleVersion  = "8.12",
@@ -70,18 +68,16 @@ class `MarkdownBadgeRender should`: StringSpec({
                 buildScanUrl   = "test://buildscan"
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
+        val actualMarkdown = MarkdownRenderer().render(givenBuildSummary)
 
         //language=Markdown
-        actualMarkdown shouldBe """
-            ![](https://img.shields.io/badge/✔_project_-:build-0A0?&style=flat-square)
-            [![](https://img.shields.io/badge/8.12-BuildScan-06A0CE?&style=flat-square&logo=Gradle)](test://buildscan)  
-		""".trimIndent()
+        actualMarkdown shouldBe "[](123456789)✔ **project** `:build` ┃ _Gradle 8.12 [BuildScan](test://buildscan)_  "
     }
 
     "generate a markdown for a successful `BuildSummary` failing to publish build scan URL." {
 
         val givenBuildSummary = BuildSummary(
+                invocationId     = 53237891,
                 rootProject      = "root-project",
                 tasks            = listOf(":build"),
                 gradleVersion    = "8.9",
@@ -89,31 +85,26 @@ class `MarkdownBadgeRender should`: StringSpec({
                 hasPublishFailed = true
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
+        val actualMarkdown = MarkdownRenderer().render(givenBuildSummary)
 
         //language=Markdown
-        actualMarkdown shouldBe """
-            ![](https://img.shields.io/badge/✔_root--project_-:build-0A0?&style=flat-square)
-            ![](https://img.shields.io/badge/8.9-BuildScan_failed-F55?&style=flat-square&logo=Gradle)  
-		""".trimIndent()
+        actualMarkdown shouldBe "[](53237891)✔ **root-project** `:build` ┃ _Gradle 8.9 ~~BuildScan~~_  "
     }
 
     "generate a markdown for a successful `BuildSummary` with multiple tasks." {
 
         val givenBuildSummary = BuildSummary(
+                invocationId   = 123456789,
                 rootProject    = "root-project",
                 tasks          = listOf(":clean", ":check", ":build"),
                 gradleVersion  = "8.12.1",
                 hasBuildFailed = false
         )
 
-        val actualMarkdown = MarkdownBadgeRenderer().render(givenBuildSummary)
+        val actualMarkdown = MarkdownRenderer().render(givenBuildSummary)
 
         //language=Markdown
-        actualMarkdown shouldBe """
-            ![](https://img.shields.io/badge/✔_root--project_-:clean_:check_:build-0A0?&style=flat-square)
-            ![](https://img.shields.io/badge/8.12.1-555?&style=flat-square&logo=Gradle)  
-		""".trimIndent()
+        actualMarkdown shouldBe "[](123456789)✔ **root-project** `:clean :check :build` ┃ _Gradle 8.12.1_  "
     }
 
 })

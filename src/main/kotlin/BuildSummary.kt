@@ -19,6 +19,7 @@ package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
 data class BuildSummary(
+		val invocationId:	  Int,
 		val rootProject:      String,
 		val tasks:            List<String>,
 		val gradleVersion:    String,
@@ -28,7 +29,7 @@ data class BuildSummary(
 ) {
 	enum class PublishStatus { NotPublished, Published, PublishFailed }
 
-	val publishStatus get() =
+	val publishStatus: PublishStatus get() =
 			when {
 				hasPublishFailed       -> PublishStatus.PublishFailed
 				buildScanUrl.isBlank() -> PublishStatus.NotPublished

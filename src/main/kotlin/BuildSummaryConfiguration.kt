@@ -32,7 +32,8 @@ abstract class BuildSummaryConfiguration {
 
     companion object {
         fun createExtensionIn(target: Gradle): BuildSummaryConfiguration =
-                target.extensions.create<BuildSummaryConfiguration>(BuildSummaryConfiguration::class.jvmName)
+                target.extensions
+                        .create<BuildSummaryConfiguration>(BuildSummaryConfiguration::class.jvmName)
     }
 
     abstract val renderer: Property<BuildSummaryRenderer>
