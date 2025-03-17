@@ -18,24 +18,17 @@
 package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardOpenOption
 import javax.inject.Inject
 import kotlin.reflect.jvm.jvmName
 import org.gradle.api.Plugin
-import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.invocation.Gradle
-import org.gradle.api.logging.Logging
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.services.BuildServiceSpec
-import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
 
 
 @Suppress("unused")
@@ -54,7 +47,7 @@ abstract class BuildSummaryPlugin @Inject constructor(
             parameters.builsScanUrl.convention("")
             parameters.hasBuildScanaFailed.convention(false)
         }.get()
-        flowScope.always(XXX::class.java){
+        flowScope.always(BuildFinishedAction::class.java){
             parameters.buildWorkResult.set(
                     flowProviders.buildWorkResult
             )
@@ -66,70 +59,20 @@ abstract class BuildSummaryPlugin @Inject constructor(
         target.projectsEvaluated {
             Writer.setup(
                     c,
-                    target.parent?.rootProject?.layout?.buildDirectory?.get() ?: target.rootProject.layout.buildDirectory.get()
+                    target.parent?.rootBuildDirectory ?: target.rootBuildDirectory
             )
 
         }
 
     }
 
-    private val Gradle.buildDirectory: Path
+    private val Gradle.rootBuildDirectory: DirectoryProperty
         get() =
             rootProject.layout.buildDirectory
-                    .ensureIsCreated()
-}
-
-
-object Writer {
-
-    private val logger = Logging.getLogger("BuildSummaryPlugin")
-    private lateinit var renderer: BuildSummaryRenderer
-    private lateinit var file: Path
-
-    fun setup(configuration: BuildSummaryConfiguration, folder: Directory ) {
-        renderer = configuration.renderer.get()
-        file = folder.asFile.toPath().resolve(configuration.fileName.get())
-    }
-
-    fun write(buildSummary: BuildSummary) {
-        file
-                .readLines()
-                .add(buildSummary)
-                .writeTo(file)
-
-    }
-
-    private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
-            renderer.get().render(this)
-
-    private fun List<String>.writeTo(file: Path?) =
-            Files.writeString(
-                    file,
-                    this.joinToString("\n"),
-                    StandardOpenOption.APPEND,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.WRITE
-            )
-
-    private fun List<String>.add(summary: BuildSummary) =
-            renderer.add(summary, to = this)
 }
 
 
 //region Private extensions
-
-private fun DirectoryProperty.ensureIsCreated() =
-        Files.createDirectories(this.toPath)
-
-private fun Path.readLines(): List<String> =
-        if (Files.exists(this))
-            Files.readAllLines(this)
-        else
-            emptyList()
-
-private val DirectoryProperty.toPath: Path
-    get() =
-        get().asFile.toPath()
 
 private inline fun <reified SERVICE> Gradle.register() where
         SERVICE: BuildService<BuildServiceParameters.None> =

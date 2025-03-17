@@ -18,12 +18,11 @@
 plugins {
 	alias(main.plugins.publish)
 	alias(main.plugins.kotlin.dsl)
-	alias(main.plugins.kotlinx.serialization)
 }
 
 
 group   = "org.eu.jacquarde"
-version = "0.2-beta-2"
+version = "0.2-beta-3"
 
 
 kotlin {
@@ -34,36 +33,13 @@ kotlin {
 	sourceSets {
 		main {
 			dependencies {
-//				implementation(project.dependencies.gradleApi())
 				implementation(libs.gradle.develocity)
 			}
 		}
-		shared {
-			dependencies {
-				implementation(libs.kotlinx.serialization)
-				implementation(libs.kotlinx.serialization.cbor)
-				implementation(libs.arrow.resilience)
-				implementation(libs.kotlinx.coroutines)
-				implementation(libs.ktor.server.core)
-				implementation(libs.ktor.server.netty)
-				implementation(libs.ktor.server.content)
-				implementation(libs.ktor.server.json)
-			}
-		}
-		testUnit {
+		test {
 			dependencies {
 				implementation(libs.kotest)
 				implementation(project.sourceSets.main.get().output)
-				compileOnly(libs.jetbrains.annotations)
-			}
-		}
-		testFunctional {
-			dependsOn(main.get())
-			dependencies {
-				implementation(libs.kotest)
-				implementation(project.dependencies.gradleTestKit())
-				implementation(project.sourceSets.shared.output)
-				runtimeOnly(project.sourceSets.shared.runtimeClasspath)
 			}
 		}
 	}
@@ -76,7 +52,6 @@ gradlePlugin {
 			implementationClass = "org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin"
 		}
 	}
-//	testSourceSets(sourceSets.testFunctional)
 }
 
 publishing {
@@ -86,15 +61,8 @@ publishing {
 }
 
 tasks {
-	testUnit {
+	test {
 		useJUnitPlatform()
-	}
-	testFunctional {
-		useJUnitPlatform()
-	}
-	check {
-		dependsOn(testUnit)
-		dependsOn(testFunctional)
 	}
 	wrapper {
 		distributionType = Wrapper.DistributionType.ALL

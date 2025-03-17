@@ -18,21 +18,23 @@
 package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
-data class BuildSummary(
-		val invocationId:	  Int,
-		val rootProject:      String,
-		val tasks:            List<String>,
-		val gradleVersion:    String,
-		val hasBuildFailed:   Boolean,
-		val buildScanUrl:     String  = "",
-		val hasPublishFailed: Boolean = false,
-) {
-	enum class PublishStatus { NotPublished, Published, PublishFailed }
+import org.gradle.api.flow.BuildWorkResult
+import org.gradle.api.flow.FlowAction
+import org.gradle.api.flow.FlowParameters
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 
-	val publishStatus: PublishStatus get() =
-			when {
-				hasPublishFailed       -> PublishStatus.PublishFailed
-				buildScanUrl.isBlank() -> PublishStatus.NotPublished
-				else                   -> PublishStatus.Published
-			}
+
+@Suppress("UnstableApiUsage", "UnstableTypeUsedInSignature")
+abstract class BuildFinishedAction: FlowAction<BuildFinishedAction.Parameters> {
+
+    interface Parameters: FlowParameters {
+        @get:Input val buildWorkResult: Property<BuildWorkResult>
+    }
+
+    override fun execute(parameters: Parameters) {
+        LifecycleRegistry.notify(
+                LifecycleEvent.BuildFinished(parameters.buildWorkResult.get())
+        )
+    }
 }

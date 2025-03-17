@@ -28,7 +28,7 @@ initscript {
     }
     dependencies {
 //        classpath("com.gradle.develocity:com.gradle.develocity.gradle.plugin:3.19.2")
-        classpath("org.eu.jacquarde:gradle-build-summary:0.2-beta-2")
+        classpath("org.eu.jacquarde:gradle-build-summary:0.2-beta-3")
     }
 }
 

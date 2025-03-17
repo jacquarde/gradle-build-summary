@@ -18,20 +18,14 @@
 package org.eu.jacquarde.gradle.plugins.buildsummary
 
 
-import com.gradle.develocity.agent.gradle.internal.DevelocityConfigurationInternal
-import java.net.URL
-import java.net.URLClassLoader
 import org.gradle.api.Project
 import org.gradle.api.flow.BuildWorkResult
-import org.gradle.api.flow.FlowAction
-import org.gradle.api.flow.FlowParameters
 import org.gradle.api.initialization.Settings
 import org.gradle.api.invocation.Gradle
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.gradle.api.tasks.Input
 
 
 public abstract class LifecycleService:
@@ -118,138 +112,6 @@ sealed interface LifecycleEvent {
     object Finished                                               :LifecycleEvent
 }
 
-
-public object LifecycleRegistry {
-
-    private lateinit var lifecycle: LifecycleService
-    internal var usingDevelocity: Boolean = false
-
-    fun setup(
-            target: Gradle,
-            lifecycleService: LifecycleService,
-    ) {
-        lifecycle = lifecycleService
-        target.beforeSettings {
-            notify(LifecycleEvent.Started(target))
-        }
-        target.settingsEvaluated {
-            pluginManager.withPlugin("com.gradle.develocity") {
-                usingDevelocity = true
-                val cl : URLClassLoader = extensions.getByName("develocity")::class.java.classLoader as URLClassLoader
-                cl.addClassPathsOf(LifecycleRegistry::class.java.classLoader)
-                cl.loadClass(ScanRegistry::class.java.name).constructors[0].newInstance(
-                        extensions.getByName("develocity"),
-                        {scanBuildUri: String ->
-                            notify(LifecycleEvent.BuildScanPublished(scanBuildUri))
-                            notify(LifecycleEvent.Finished)
-                        },
-                        {
-                            notify(LifecycleEvent.BuildScanFailed)
-                            notify(LifecycleEvent.Finished)
-                        },
-                )
-            }
-            notify(LifecycleEvent.SettingsEvaluated(this))
-        }
-        target.projectsEvaluated {
-            notify(LifecycleEvent.ProjectsEvaluated(this.rootProject))
-        }
-    }
-
-    internal fun notify(event: LifecycleEvent) {
-        lifecycle.onEvent(event)
-    }
-
-}
-
-public class ScanRegistry(
-        develocityConfiguration: DevelocityConfigurationInternal,
-        onPublished: (String)->Unit,
-        onError:()->Unit,
-) {
-    init {
-        with(develocityConfiguration.buildScan) {
-            buildScanPublished { onPublished(buildScanUri.toASCIIString()) }
-            onError { onError() }
-            onErrorInternal { onError() }
-        }
-    }
-}
-
-abstract class XXX: FlowAction<XXX.Parameters> {
-
-    interface Parameters: FlowParameters {
-        @get:Input val buildWorkResult: Property<BuildWorkResult>
-    }
-
-    override fun execute(parameters: Parameters) {
-        LifecycleRegistry.notify(
-                LifecycleEvent.BuildFinished(parameters.buildWorkResult.get())
-        )
-        if (!LifecycleRegistry.usingDevelocity)
-            LifecycleRegistry.notify(
-                    LifecycleEvent.Finished
-            )
-    }
-}
-
-
-/* public abstract class EventListenerService:
-        BuildService<BuildServiceParameters.None>,
-        OperationCompletionListener,
-        AutoCloseable {
-
-    public var lifecycleService: LifecycleService? = null
-
-    override fun onFinish(event: FinishEvent?) = Unit
-
-    override fun close() {
-        lifecycleService?.onEvent(LifecycleEvent.Finished)
-    }
-} */
-
-/* interface Summary
-    : BuildService<BuildServiceParameters.None> {
-
-    val rootProject: Property<String>
-    val tasks: ListProperty<String>
-    val gradleVersion: Property<String>
-    val hasBuildFailed: Property<Boolean>
-    val buildScanUrl: Property<String>
-    val hasPublishFailed: Property<Boolean>
-
-    fun toBuildSummary() =
-            BuildSummary(
-                    rootProject.get(),
-                    tasks.get(),
-                    gradleVersion.get(),
-                    hasBuildFailed.get(),
-                    buildScanUrl.get(),
-                    hasPublishFailed.get()
-            )
-} */
-
-/*
-class Summary {
-    var rootProject: String? = null
-    var tasks: List<String> = emptyList()
-    var gradleVersion: String? = null
-    var hasBuildFailed: Boolean? = null
-    var buildScanUrl: String = ""
-    var hasPublishFailed: Boolean = false
-
-    fun toBuildSummary(): BuildSummary =
-            BuildSummary(rootProject!!, tasks, gradleVersion!!, hasBuildFailed!!, buildScanUrl, hasPublishFailed)
-}
-*/
-
 //region Private extensions
-
-public fun ClassLoader.addClassPathsOf(classloader: ClassLoader?) {
-    val m = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java).apply { isAccessible = true }
-    (classloader as URLClassLoader).urLs.forEach {
-        m.invoke(this, it)
-    }
-}
 
 //endregion
