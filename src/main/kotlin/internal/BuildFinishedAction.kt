@@ -15,7 +15,7 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.buildsummary
+package org.eu.jacquarde.gradle.plugins.buildsummary.internal
 
 
 import org.gradle.api.flow.BuildWorkResult
@@ -33,7 +33,7 @@ abstract class BuildFinishedAction: FlowAction<BuildFinishedAction.Parameters> {
     }
 
     override fun execute(parameters: Parameters) {
-        LifecycleRegistry.notify(
+        LifecycleRegister.notify(
                 LifecycleEvent.BuildFinished(parameters.buildWorkResult.get())
         )
     }

@@ -15,47 +15,33 @@
  */
 
 
-package org.eu.jacquarde.gradle.plugins.buildsummary
+package org.eu.jacquarde.gradle.plugins.buildsummary.internal
 
 
 import com.gradle.develocity.agent.gradle.internal.DevelocityConfigurationInternal
 import java.net.URL
 import java.net.URLClassLoader
 import org.gradle.api.invocation.Gradle
+import org.gradle.api.plugins.ExtensionContainer
 
 
-public object LifecycleRegistry {
+public object LifecycleRegister {
 
     private var lifecycle: LifecycleService? = null
-    internal var usingDevelocity: Boolean = false
 
     fun setup(
             target: Gradle,
             lifecycleService: LifecycleService,
     ) {
         lifecycle = lifecycleService
-        target.beforeSettings {
-            notify(LifecycleEvent.Started(target))
-        }
         target.settingsEvaluated {
+            notify(LifecycleEvent.SettingsEvaluated(this))
             pluginManager.withPlugin("com.gradle.develocity") {
-                usingDevelocity = true
-                val cl : URLClassLoader = extensions.getByName("develocity")::class.java.classLoader as URLClassLoader
-                cl.addClassPathsOf(LifecycleRegistry::class.java.classLoader)
-                cl.loadClass(ScanRegistry::class.java.name).constructors[0].newInstance(
-                        extensions.getByName("develocity"),
-                        {scanBuildUri: String ->
-                            notify(LifecycleEvent.BuildScanPublished(scanBuildUri))
-                        },
-                        {
-                            notify(LifecycleEvent.BuildScanFailed)
-                        },
+                extensions.configure("develocity",
+                        onPublished = {scanBuildUrl -> notify(LifecycleEvent.BuildScanPublished(scanBuildUrl))},
+                        onFailed    = {notify(LifecycleEvent.BuildScanFailed)}
                 )
             }
-            notify(LifecycleEvent.SettingsEvaluated(this))
-        }
-        target.projectsEvaluated {
-            notify(LifecycleEvent.ProjectsEvaluated(this.rootProject))
         }
     }
 
@@ -63,9 +49,20 @@ public object LifecycleRegistry {
         lifecycle?.onEvent(event)
     }
 
+    private fun ExtensionContainer.configure(name: String, onPublished: (String) -> Unit, onFailed: () -> Unit) {
+        with(getByName(name)::class.java.classLoader) {
+            addClassPathsOf(LifecycleRegister::class.java.classLoader)
+            loadClass(ScanRegister::class.java.name).constructors[0].newInstance(
+                    getByName("develocity"),
+                    onPublished,
+                    onFailed
+            )
+        }
+    }
 }
 
-public class ScanRegistry(
+
+public class ScanRegister public constructor(
         develocityConfiguration: DevelocityConfigurationInternal,
         onPublished: (String)->Unit,
         onError:()->Unit,
@@ -79,7 +76,8 @@ public class ScanRegistry(
     }
 }
 
-public fun ClassLoader.addClassPathsOf(classloader: ClassLoader?) {
+
+private fun ClassLoader.addClassPathsOf(classloader: ClassLoader?) {
     val m = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java).apply { isAccessible = true }
     (classloader as URLClassLoader).urLs.forEach {
         m.invoke(this, it)

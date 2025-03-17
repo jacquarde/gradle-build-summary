@@ -29,42 +29,52 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.services.BuildServiceSpec
+import org.eu.jacquarde.gradle.plugins.buildsummary.internal.BuildFinishedAction
+import org.eu.jacquarde.gradle.plugins.buildsummary.internal.LifecycleRegister
+import org.eu.jacquarde.gradle.plugins.buildsummary.internal.LifecycleService
 
 
 @Suppress("unused")
 abstract class BuildSummaryPlugin @Inject constructor(
         private val providerFactory: ProviderFactory,
         private val flowScope: FlowScope,
-        private val flowProviders: FlowProviders
+        private val flowProviders: FlowProviders,
 ): Plugin<Gradle> {
 
     public override fun apply(target: Gradle) {
-        val lc = target.register<LifecycleService, _> {
-            parameters.gradleVersion.convention("")
-            parameters.tasks.convention(emptyList())
-            parameters.hasBuildFailed.convention(false)
-            parameters.rootProject.convention("")
-            parameters.builsScanUrl.convention("")
-            parameters.hasBuildScanaFailed.convention(false)
-        }.get()
-        flowScope.always(BuildFinishedAction::class.java){
-            parameters.buildWorkResult.set(
-                    flowProviders.buildWorkResult
-            )
-        }
-        val c = BuildSummaryConfiguration
-                .createExtensionIn(target)
-                .createConvention()
-        LifecycleRegistry.setup(target, lc)
+        registerBuildFinishedAction()
+        val configuration    = registerExtension(target)
+        val lifecycleService = registerLifecycleService(target)
+        LifecycleRegister.setup(target, lifecycleService)
         target.projectsEvaluated {
-            Writer.setup(
-                    c,
-                    target.parent?.rootBuildDirectory ?: target.rootBuildDirectory
-            )
-
+            Writer.setup(configuration, topBuildRectory(target))
         }
-
     }
+
+    private fun topBuildRectory(target: Gradle): DirectoryProperty =
+            target.parent?.rootBuildDirectory ?: target.rootBuildDirectory
+
+    private fun registerBuildFinishedAction() =
+            flowScope.always(BuildFinishedAction::class.java) {
+                parameters.buildWorkResult.set(
+                        flowProviders.buildWorkResult
+                )
+            }
+
+    private fun registerExtension(target: Gradle): BuildSummaryConfiguration =
+            BuildSummaryConfiguration
+                    .createExtensionIn(target)
+                    .createConvention()
+
+    private fun registerLifecycleService(target: Gradle): LifecycleService =
+            target.register<LifecycleService, _> {
+                parameters.gradleVersion.convention("")
+                parameters.tasks.convention(emptyList())
+                parameters.hasBuildFailed.convention(false)
+                parameters.rootProject.convention("")
+                parameters.builsScanUrl.convention("")
+                parameters.hasBuildScanaFailed.convention(false)
+            }.get()
 
     private val Gradle.rootBuildDirectory: DirectoryProperty
         get() =
