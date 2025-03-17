@@ -26,8 +26,14 @@ class MarkdownBadgeRenderer: BuildSummaryRenderer {
 
     override fun render(buildSummary: BuildSummary): String =
             with(buildSummary) {
-                "$buildBadge$newLine$publishBadge$markdownHardLineBreak$newLine"
+                "$id$buildBadge$newLine$publishBadge$markdownHardLineBreak$newLine"
             }
+
+    override fun getId(string: String): Int =
+            """^\[\]\((\d+)\)""".toRegex()
+                    .find(string)
+                    ?.groupValues?.get(1)
+                    ?.toInt() ?: -1
 
     private val BuildSummary.buildBadge get() =
         "![](${shieldBadgeUrl}/${buildOutcome}${projectName}-${taskList}${buildColor}?${badgeStyle})"
@@ -47,6 +53,7 @@ class MarkdownBadgeRenderer: BuildSummaryRenderer {
     private val newLine               = "\n"
     private val shieldBadgeUrl        = "https://img.shields.io/badge"
 
+    private val BuildSummary.id           get() = "[]($invocationId)"
     private val BuildSummary.buildOutcome get() = if (hasBuildFailed) "✖" else "✔"
     private val BuildSummary.buildColor   get() = if (hasBuildFailed) "-F55" else "-0A0"
     private val BuildSummary.projectName  get() = " $rootProject ".scape()

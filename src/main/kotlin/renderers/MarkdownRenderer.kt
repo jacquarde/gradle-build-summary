@@ -25,9 +25,17 @@ class MarkdownRenderer: BuildSummaryRenderer {
 
     override fun render(buildSummary: BuildSummary): String =
         with(buildSummary) {
-            "$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  \n"
+            "$id$buildOutcome **$rootProject** `$taskList` ┃ _Gradle $gradleVersion${buildScan}_  \n"
         }
 
+    override fun getId(string: String): Int =
+            """^\[\]\((\d+)\)""".toRegex()
+                    .find(string)
+                    ?.groupValues?.get(1)
+                    ?.toInt() ?: -1
+
+
+    private val BuildSummary.id           get() = "[]($invocationId)"
     private val BuildSummary.buildOutcome get() = if (hasBuildFailed) "✖" else "✔"
     private val BuildSummary.taskList     get() = tasks.joinToString(" ")
     private val BuildSummary.buildScan    get() =

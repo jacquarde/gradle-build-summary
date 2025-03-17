@@ -62,14 +62,41 @@ public abstract class LifecycleService:
                 }
                 is LifecycleEvent.BuildFinished      -> {
                     parameters.hasBuildFailed.set(lifecycle.buildResult.failure.isPresent)
+                    Writer.write(BuildSummary(
+                            this.hashCode(),
+                            parameters.rootProject.get(),
+                            parameters.tasks.get().toList(),
+                            parameters.gradleVersion.get(),
+                            parameters.hasBuildFailed.get(),
+                            parameters.builsScanUrl.get(),
+                            parameters.hasBuildScanaFailed.get()
+                    ))
                 }
                 is LifecycleEvent.BuildFinishedXXX   -> {}
                 is LifecycleEvent.BuildScanPublished -> {
                     parameters.hasBuildScanaFailed.set(false)
                     parameters.builsScanUrl.set(lifecycle.buildScanUrl)
+                    Writer.write(BuildSummary(
+                            this.hashCode(),
+                            parameters.rootProject.get(),
+                            parameters.tasks.get().toList(),
+                            parameters.gradleVersion.get(),
+                            parameters.hasBuildFailed.get(),
+                            parameters.builsScanUrl.get(),
+                            parameters.hasBuildScanaFailed.get()
+                    ))
                 }
                 is LifecycleEvent.BuildScanFailed -> {
                     parameters.hasBuildScanaFailed.set(true)
+                    Writer.write(BuildSummary(
+                            this.hashCode(),
+                            parameters.rootProject.get(),
+                            parameters.tasks.get().toList(),
+                            parameters.gradleVersion.get(),
+                            parameters.hasBuildFailed.get(),
+                            parameters.builsScanUrl.get(),
+                            parameters.hasBuildScanaFailed.get()
+                    ))
                 }
                 is LifecycleEvent.Finished          -> {
 //                parameters.summary.get().print()
@@ -94,7 +121,8 @@ sealed interface LifecycleEvent {
 
 public object LifecycleRegistry {
 
-    private var lifecycle: LifecycleService? = null
+    private lateinit var lifecycle: LifecycleService
+    internal var usingDevelocity: Boolean = false
 
     fun setup(
             target: Gradle,
@@ -102,27 +130,34 @@ public object LifecycleRegistry {
     ) {
         lifecycle = lifecycleService
         target.beforeSettings {
-            lifecycleService.onEvent(LifecycleEvent.Started(target))
+            notify(LifecycleEvent.Started(target))
         }
         target.settingsEvaluated {
             pluginManager.withPlugin("com.gradle.develocity") {
+                usingDevelocity = true
                 val cl : URLClassLoader = extensions.getByName("develocity")::class.java.classLoader as URLClassLoader
                 cl.addClassPathsOf(LifecycleRegistry::class.java.classLoader)
                 cl.loadClass(ScanRegistry::class.java.name).constructors[0].newInstance(
                         extensions.getByName("develocity"),
-                        {scanBuildUri: String -> notify(LifecycleEvent.BuildScanPublished(scanBuildUri))},
-                        {notify(LifecycleEvent.BuildScanFailed)},
+                        {scanBuildUri: String ->
+                            notify(LifecycleEvent.BuildScanPublished(scanBuildUri))
+                            notify(LifecycleEvent.Finished)
+                        },
+                        {
+                            notify(LifecycleEvent.BuildScanFailed)
+                            notify(LifecycleEvent.Finished)
+                        },
                 )
             }
-            lifecycleService.onEvent(LifecycleEvent.SettingsEvaluated(this))
+            notify(LifecycleEvent.SettingsEvaluated(this))
         }
         target.projectsEvaluated {
-            lifecycleService.onEvent(LifecycleEvent.ProjectsEvaluated(this.rootProject))
+            notify(LifecycleEvent.ProjectsEvaluated(this.rootProject))
         }
     }
 
-    public fun notify(event: LifecycleEvent) {
-        lifecycle?.onEvent(event)
+    internal fun notify(event: LifecycleEvent) {
+        lifecycle.onEvent(event)
     }
 
 }
@@ -136,6 +171,7 @@ public class ScanRegistry(
         with(develocityConfiguration.buildScan) {
             buildScanPublished { onPublished(buildScanUri.toASCIIString()) }
             onError { onError() }
+            onErrorInternal { onError() }
         }
     }
 }
@@ -150,6 +186,10 @@ abstract class XXX: FlowAction<XXX.Parameters> {
         LifecycleRegistry.notify(
                 LifecycleEvent.BuildFinished(parameters.buildWorkResult.get())
         )
+        if (!LifecycleRegistry.usingDevelocity)
+            LifecycleRegistry.notify(
+                    LifecycleEvent.Finished
+            )
     }
 }
 

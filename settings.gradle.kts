@@ -61,7 +61,7 @@ dependencyResolutionManagement {
 }
 
 develocity {
-	server = "http://127.0.0.1:8080"
+	server = ""
 	buildScan {
 //		publishing.onlyIf{ System.getenv("CI") != null  }
 		termsOfUseUrl   = "https://gradle.com/help/legal-terms-of-use"

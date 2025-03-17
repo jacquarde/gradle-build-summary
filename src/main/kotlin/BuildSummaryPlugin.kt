@@ -24,6 +24,7 @@ import java.nio.file.StandardOpenOption
 import javax.inject.Inject
 import kotlin.reflect.jvm.jvmName
 import org.gradle.api.Plugin
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
@@ -58,9 +59,18 @@ abstract class BuildSummaryPlugin @Inject constructor(
                     flowProviders.buildWorkResult
             )
         }
-        LifecycleRegistry.setup(target, lc)
-        BuildSummaryConfiguration.createExtensionIn(target)
+        val c = BuildSummaryConfiguration
+                .createExtensionIn(target)
                 .createConvention()
+        LifecycleRegistry.setup(target, lc)
+        target.projectsEvaluated {
+            Writer.setup(
+                    c,
+                    target.parent?.rootProject?.layout?.buildDirectory?.get() ?: target.rootProject.layout.buildDirectory.get()
+            )
+
+        }
+
     }
 
     private val Gradle.buildDirectory: Path
@@ -70,28 +80,39 @@ abstract class BuildSummaryPlugin @Inject constructor(
 }
 
 
-class Writer(private val configuration: BuildSummaryConfiguration) {
+object Writer {
 
     private val logger = Logging.getLogger("BuildSummaryPlugin")
+    private lateinit var renderer: BuildSummaryRenderer
+    private lateinit var file: Path
 
-    fun write(buildSummary: BuildSummary, file: Path) {
-        buildSummary
-                .renderWith(configuration.renderer)
+    fun setup(configuration: BuildSummaryConfiguration, folder: Directory ) {
+        renderer = configuration.renderer.get()
+        file = folder.asFile.toPath().resolve(configuration.fileName.get())
+    }
+
+    fun write(buildSummary: BuildSummary) {
+        file
+                .readLines()
+                .add(buildSummary)
                 .writeTo(file)
-                .let {logger.info("Build summary added to '{}'", file.normalize().toString())}
+
     }
 
     private fun BuildSummary.renderWith(renderer: Property<BuildSummaryRenderer>): String =
             renderer.get().render(this)
 
-    private fun String.writeTo(file: Path?) =
+    private fun List<String>.writeTo(file: Path?) =
             Files.writeString(
                     file,
-                    this,
+                    this.joinToString("\n"),
                     StandardOpenOption.APPEND,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.WRITE
             )
+
+    private fun List<String>.add(summary: BuildSummary) =
+            renderer.add(summary, to = this)
 }
 
 
@@ -99,6 +120,12 @@ class Writer(private val configuration: BuildSummaryConfiguration) {
 
 private fun DirectoryProperty.ensureIsCreated() =
         Files.createDirectories(this.toPath)
+
+private fun Path.readLines(): List<String> =
+        if (Files.exists(this))
+            Files.readAllLines(this)
+        else
+            emptyList()
 
 private val DirectoryProperty.toPath: Path
     get() =
