@@ -22,12 +22,8 @@ initscript {
     repositories {
         mavenLocal()
         gradlePluginPortal()
-//        maven {{
-//            url = uri("https://plugins.gradle.org/m2/")
-//        }
     }
     dependencies {
-//        classpath("com.gradle.develocity:com.gradle.develocity.gradle.plugin:3.19.2")
         classpath("org.eu.jacquarde:gradle-build-summary:0.2-beta-3")
     }
 }
@@ -35,26 +31,24 @@ initscript {
 /**
  * Generates a build summary file in markdown to be used in a GitHub action step summary.
  *
- * The file is located by default in `<project>/build/build-summary.md`.
+ * The file is located by default in `<root-project>/build/build-summary.md`.
  * To add it to a job summary, include this in a step of the workflow:
  * 
  *     `run: cat $GITHUB_WORKSPACE/build/build-summary.md >> $GITHUB_STEP_SUMMARY`
  * 
  * @see https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#example-of-adding-a-job-summary
  */
-
-/* settingsEvaluated {
-    pluginManager.withPlugin("com.gradle.develocity") {
-        extensions.getByName("develocity") //as DevelocityConfiguration
-        extensions.getByType<DevelocityConfiguration>()
-    }
-//    pluginManager.apply(DevelocityPlugin::class.java)
-//    pluginManager.apply("com.gradle.develocity")
-//    apply(plugin = "com.gradle.develocity")
-} */
-
 apply<BuildSummaryPlugin>()
 
+/**
+ * Configura the build summary plugin
+ *
+ * Default values are commented
+ *
+ */
 configure<BuildSummaryConfiguration> {
-	renderer = MarkdownBadgeRenderer()
+//    fileName = "build-summary.md"
+//    renderer = MarkdownBadgeRenderer()
+//    activeIf = {System.getenv("CI") != null}
+    script   = initscript.sourceFile
 }
