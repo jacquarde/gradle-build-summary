@@ -25,13 +25,17 @@ on:
 
 permissions: read-all
 
+defaults:
+    run:
+        shell: bash
+
 
 jobs:
     build:
         runs-on: self-hosted
         steps:
         -   name: Clean workspace
-            run:  rm -r ${{github.workspace}}/*
+            run:  rm -rf ${{github.workspace}}/{*,.*}
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
             env:
