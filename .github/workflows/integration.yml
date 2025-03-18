@@ -33,8 +33,8 @@ jobs:
         -   name: Fetch source
             # uses: actions/checkout@v4
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
-            # env:
-                # GH_TOKEN: ${{ github.token }}
+            env:
+                GH_TOKEN: ${{ github.token }}
         -   name: Create wrapper
             run:  gradle wrapper
         -   name: Build with Gradle Wrapper
