@@ -41,7 +41,9 @@ jobs:
             run:  ./gradlew build
         -   name:  Export properties
             id:    properties
-            run:   echo "version=$(./gradlew releaseVersion -q)" >> $GITHUB_OUTPUT
+            run:   |
+                echo "version=$(./gradlew releaseVersion -q)" >> $GITHUB_OUTPUT
+                echo "::notice::Output $GITHUB_OUTPUT"
     releaseDraft:
         name:    Release draft
         needs: build
