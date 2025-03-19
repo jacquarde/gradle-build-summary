@@ -18,6 +18,7 @@
 plugins {
 	alias(main.plugins.publish)
 	alias(main.plugins.kotlin.dsl)
+	id("github-tooling")
 }
 
 
@@ -61,12 +62,6 @@ publishing {
 }
 
 tasks {
-	register("releaseVersion") {
-		inputs.property("releaseVersion", project.property("version"))
-		doLast {
-			println(inputs.properties["releaseVersion"])
-		}
-	}
 	test {
 		useJUnitPlatform()
 	}
