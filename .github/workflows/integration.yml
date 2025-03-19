@@ -40,9 +40,8 @@ jobs:
         -   name: Extract properties
             id:   properties
             run:  |
-                echo "properties=$(./gradlew propertiesJson -q)" >> $Env:GITHUB_OUTPUT
-                echo "::notice::$Env:GITHUB_OUTPUT"
-
+                  echo "properties=$(./gradlew propertiesJson -q)" >> $env:GITHUB_OUTPUT
+                  Write-Output "::notice::$env:GITHUB_OUTPUT"
 
     build:
         runs-on: self-hosted
