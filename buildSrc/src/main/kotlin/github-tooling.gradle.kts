@@ -206,6 +206,6 @@ abstract class PropertiesJson: DefaultTask() {
 
 tasks.register<PropertiesJson>("propertiesJson") {
     properties.set(
-            project.properties.filter {it.value is String}.mapValues { it.value.toString() }
+            project.properties.mapValues { it.value.toString() }
     )
 }
