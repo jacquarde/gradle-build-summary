@@ -47,6 +47,10 @@ jobs:
         needs:   setup
         env: ${{fromJSON(needs.setup.outputs.properties)}}
         steps:
+        -   name: Fetch source
+            run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
+            env:
+                GH_TOKEN: ${{github.token}}
         -   name: Create wrapper
             run:  gradle wrapper
         -   name: Build with Gradle wrapper
