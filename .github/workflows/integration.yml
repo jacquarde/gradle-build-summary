@@ -29,8 +29,7 @@ jobs:
         runs-on: self-hosted
         environment: development
         env:
-            p:          $(./gradlew propertiesJson)
-            properties: ${{ fromJSON(p) }}
+            properties: ${{ fromJSON($(./gradlew propertiesJson)) }}
         outputs:
             version: ${{ steps.properties.outputs.version }}
         steps:
@@ -54,8 +53,7 @@ jobs:
         permissions:
             contents: write
         env:
-            p: $(./gradlew propertiesJson)
-            properties: ${{ fromJSON(p) }}
+            properties: ${{ fromJSON($(./gradlew propertiesJson)) }}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
