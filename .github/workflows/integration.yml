@@ -28,6 +28,9 @@ jobs:
     build:
         runs-on: self-hosted
         environment: development
+        env:
+            p:          $(./gradlew propertiesJson)
+            properties: ${{ fromJSON(p) }}
         outputs:
             version: ${{ steps.properties.outputs.version }}
         steps:
@@ -39,16 +42,20 @@ jobs:
             run:  gradle wrapper
         -   name: Build with Gradle wrapper
             run:  ./gradlew build
-        -   name:  Export properties
-            id:    properties
-            run:   |
-                echo "version=$(./gradlew releaseVersion -q)" >> $Env:GITHUB_OUTPUT
+        -   name: Upload artifact
+            uses: actions/upload-artifact@v4
+            with:
+                name: ${{ properties.name }}-${{properties.version}}
+                path: ./build/libs
     releaseDraft:
         name:    Release draft
         needs: build
         runs-on: self-hosted
         permissions:
             contents: write
+        env:
+            p: $(./gradlew propertiesJson)
+            properties: ${{ fromJSON(p) }}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
@@ -58,4 +65,4 @@ jobs:
             env:
                 GITHUB_TOKEN: ${{ github.token }}
             run:  |
-                  gh release create "v${{ needs.build.outputs.version }}" --draft --title "v${{ needs.build.outputs.version }}"
+                  gh release create "v${{ properties.version }}" --draft --title "v${{ properties.vesion }}"
