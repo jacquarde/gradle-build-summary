@@ -25,18 +25,26 @@ on:
 
 
 jobs:
-    build:
+
+    setup:
         runs-on: self-hosted
-        environment: development
-        env:
-            properties: ${{ fromJSON($(./gradlew propertiesJson)) }}
         outputs:
-            version: ${{ steps.properties.outputs.version }}
+            properties: ${{steps.properties.outputs.properties}}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
             env:
-                GH_TOKEN: ${{ github.token }}
+                GH_TOKEN: ${{github.token}}
+        -   name: Extract properties
+            id:   properties
+            run:  $(./gradlew propertiesJson -q) >> $GITHUB_OUTPUT
+
+    build:
+        runs-on: self-hosted
+        needs:   setup
+        env:
+            properties: ${{fromJSON(needs.setup.outputs.properties)}}
+        steps:
         -   name: Create wrapper
             run:  gradle wrapper
         -   name: Build with Gradle wrapper
@@ -44,23 +52,24 @@ jobs:
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
-                name: ${{ properties.name }}-${{properties.version}}
+                name: ${{env.properties.name}}-${{env.properties.version}}
                 path: ./build/libs
+
     releaseDraft:
         name:    Release draft
-        needs: build
+        needs:   build
         runs-on: self-hosted
         permissions:
             contents: write
         env:
-            properties: ${{ fromJSON($(./gradlew propertiesJson)) }}
+            properties: ${{fromJSON(needs.setup.outputs.properties)}}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
             env:
-                GH_TOKEN: ${{ github.token }}
+                GH_TOKEN: ${{github.token}}
         -   name: Create release draft
             env:
-                GITHUB_TOKEN: ${{ github.token }}
+                GITHUB_TOKEN: ${{github.token}}
             run:  |
-                  gh release create "v${{ properties.version }}" --draft --title "v${{ properties.vesion }}"
+                  gh release create "v${{env.properties.version}}" --draft --title "v${{env.properties.vesion}}"
