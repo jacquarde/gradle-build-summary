@@ -42,8 +42,7 @@ jobs:
         -   name:  Export properties
             id:    properties
             run:   |
-                echo "version=$(./gradlew releaseVersion -q)" >> $GITHUB_OUTPUT
-                echo "::notice::Output $GITHUB_OUTPUT"
+                echo "version=$(./gradlew releaseVersion -q)" >> $Env:GITHUB_OUTPUT
     releaseDraft:
         name:    Release draft
         needs: build
@@ -59,6 +58,4 @@ jobs:
             env:
                 GITHUB_TOKEN: ${{ github.token }}
             run:  |
-                  gh release create "v${{ needs.build.outputs.version }}" \
-                    --draft \
-                    --title "v${{ needs.build.outputs.version }}"
+                  gh release create "v${{ needs.build.outputs.version }}" --draft --title "v${{ needs.build.outputs.version }}"
