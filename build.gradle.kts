@@ -22,7 +22,7 @@ plugins {
 
 
 group   = "org.eu.jacquarde"
-version = "0.2-beta-3"
+version = "0.2-rc-1"
 
 
 kotlin {

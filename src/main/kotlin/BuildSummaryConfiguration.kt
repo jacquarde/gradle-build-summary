@@ -21,10 +21,11 @@ package org.eu.jacquarde.gradle.plugins.buildsummary
 import java.io.File
 import kotlin.reflect.jvm.jvmName
 import org.gradle.api.invocation.Gradle
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
-import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.MarkdownBadgeRenderer
+import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.MarkdownRenderer
 
 
 abstract class BuildSummaryConfiguration {
@@ -37,16 +38,18 @@ abstract class BuildSummaryConfiguration {
                         .create<BuildSummaryConfiguration>(BuildSummaryConfiguration::class.jvmName)
     }
 
-    abstract val renderer: Property<BuildSummaryRenderer>
-    abstract val fileName: Property<String>
-    abstract val activeIf: Property<()->Boolean>
-    abstract val script  : Property<File>
+    abstract val renderer       : Property<BuildSummaryRenderer>
+    abstract val fileName       : Property<String>
+    abstract val activeIf       : Property<()->Boolean>
+    abstract val script         : Property<File>
+    abstract val excludeIfTasks : ListProperty<String>
 
     fun createConvention(): BuildSummaryConfiguration =
             apply {
-                renderer.convention(MarkdownBadgeRenderer())
+                renderer.convention(MarkdownRenderer())
                 fileName.convention(summaryFileName)
                 activeIf.convention {inCi()}
+                excludeIfTasks.convention(listOf("wrapper"))
             }
 
     private fun inCi(): Boolean =

@@ -48,11 +48,19 @@ abstract class BuildSummaryPlugin @Inject constructor(
     public override fun apply(target: Gradle) {
         val configuration    = registerExtension(target)
         target.beforeSettings {
-            if (configuration.activeIf.get().invoke()) {
+            if (configuration.activeIf.get().invoke() && allTaskExcluded(target, configuration)) {
                 doApply(target, configuration)
             }
         }
     }
+
+    private fun allTaskExcluded(
+            target: Gradle,
+            configuration: BuildSummaryConfiguration,
+    ): Boolean =
+            target.gradle.startParameter.taskNames
+                    .minus(configuration.excludeIfTasks.get())
+                    .isNotEmpty()
 
     private fun doApply(
             target: Gradle,
