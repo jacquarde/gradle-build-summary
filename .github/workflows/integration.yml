@@ -27,6 +27,9 @@ on:
 jobs:
     build:
         runs-on: self-hosted
+        environment: development
+        outputs:
+            version: ${{ steps.properties.outputs.version }}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
@@ -34,5 +37,22 @@ jobs:
                 GH_TOKEN: ${{ github.token }}
         -   name: Create wrapper
             run:  gradle wrapper
-        -   name: Build with Gradle Wrapper
+        -   name: Build with Gradle wrapper
             run:  ./gradlew build
+        -   name:  Export properties
+            id:    properties
+            run:   echo "version=$(./gradlew releaseVersion -q)" >> $GITHUB_OUTPUT
+    releaseDraft:
+        name:    Release draft
+        needs: build
+        runs-on: self-hosted
+        permissions:
+            contents: write
+        steps:
+        -   name: Create release draft
+            env:
+                GITHUB_TOKEN: ${{ github.token }}
+            run:  |
+                  gh release create "v${{ needs.build.outputs.version }}" \
+                    --draft \
+                    --title "v${{ needs.build.outputs.version }}" \

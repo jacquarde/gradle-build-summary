@@ -61,6 +61,12 @@ publishing {
 }
 
 tasks {
+	register("releaseVersion") {
+		inputs.property("releaseVersion", project.property("version"))
+		doLast {
+			println(inputs.properties["releaseVersion"])
+		}
+	}
 	test {
 		useJUnitPlatform()
 	}
