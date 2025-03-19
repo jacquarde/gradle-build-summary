@@ -39,7 +39,10 @@ jobs:
             run:  gradle wrapper
         -   name: Extract properties
             id:   properties
-            run:  echo "properties=$(./gradlew propertiesJson -q)" >> $GITHUB_OUTPUT
+            run:  |
+                echo "properties=$(./gradlew propertiesJson -q)" >> $GITHUB_OUTPUT
+                echo "::notice::$GITHUB_OUTPUT"
+
 
     build:
         runs-on: self-hosted
