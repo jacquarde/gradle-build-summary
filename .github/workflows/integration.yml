@@ -74,11 +74,9 @@ jobs:
         -   name: "Create release"
             env:
                 GITHUB_TOKEN: ${{github.token}}
-                NAME: ${{steps.build.outputs.build-name}}
-                VERSION: ${{steps.build.outputs.build-version}}
             run:  |
-                  gh release create "v${env:VERSION}" `
-                      './build/libs/${env:NAME}-${env:VERSION}.jar#Binary' `
-                      './build/libs/${env:NAME}-${env:VERSION}-souces.jar#Source code' `
-                      './build/libs/${env:NAME}-${env:VERSION}-javadoc.jar#Documentation' `
-                      --draft --title "${env:NAME}${env:VERSION} development"
+                  gh release create "v${{steps.build.outputs.build-version}}" `
+                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}.jar#Binary' `
+                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-souces.jar#Source code' `
+                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-javadoc.jar#Documentation' `
+                      --draft --title "${{steps.build.outputs.build-name}}${{steps.build.outputs.build-version}} development"
