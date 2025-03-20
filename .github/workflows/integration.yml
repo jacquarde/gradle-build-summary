@@ -74,11 +74,11 @@ jobs:
         -   name: "Create release"
             env:
                 GITHUB_TOKEN: ${{github.token}}
-                NAME:         ${{steps.build.outputs.build-name}}
-                VERSION:      ${{steps.build.outputs.build-version}}
+                NAME: ${{steps.build.outputs.build-name}}
+                VERSION: ${{steps.build.outputs.build-version}}
             run:  |
                   gh release create "v${env:VERSION}" `
                       './build/libs/${env:NAME}-${env:VERSION}.jar#Binary' `
                       './build/libs/${env:NAME}-${env:VERSION}-souces.jar#Source code' `
                       './build/libs/${env:NAME}-${env:VERSION}-javadoc.jar#Documentation' `
-                      --draft --title "v${env:VERSION} development"
+                      --draft --title "${env:NAME}${env:VERSION} development"
