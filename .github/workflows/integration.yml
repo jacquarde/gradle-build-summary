@@ -58,8 +58,8 @@ jobs:
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
             env:
                 GH_TOKEN: ${{github.token}}
-        -   name: Build with Gradle wrapper
-            run:  ./gradlew build
+        -   name: Create wrapper
+            run:  gradle wrapper
         -   name: Extract properties
             run:  |
                   "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_PATH

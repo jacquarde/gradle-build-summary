@@ -49,7 +49,7 @@ abstract class BuildSummaryConfiguration {
                 renderer.convention(MarkdownRenderer())
                 fileName.convention(summaryFileName)
                 activeIf.convention {inCi()}
-                excludeIfTasks.convention(listOf("wrapper"))
+                excludeIfTasks.convention(listOf("wrapper", "properties"))
             }
 
     private fun inCi(): Boolean =
