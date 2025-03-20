@@ -27,52 +27,46 @@ on:
 jobs:
 
     build:
-        name: Build artifact
-        runs-on: self-hosted
+        name:        "Create artifact"
+        runs-on:     self-hosted
         environment: development
         steps:
-        -   name: Fetch source
-            run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
-            env:
-                GH_TOKEN: ${{github.token}}
-        -   name: Create wrapper
-            run:  gradle wrapper
-        -   name: Extract properties
-            id: properties
-            run:  |
-                  ./.github/scripts/capture-properties.ps1 -Property name >> $env:GITHUB_OUTPUT
-                  ./.github/scripts/capture-properties.ps1 -Property version >> $env:GITHUB_OUTPUT
-        -   name: Build with Gradle wrapper
-            run:  ./gradlew build
-        -   name: Upload artifact
+
+        -   name: "Build artifact"
+            id:   build
+            uses: ./.github/actions/gradle-task
+            with:
+                task: "build"
+
+        -   name: "Upload artifact"
             uses: actions/upload-artifact@v4
             with:
-                name: ${{steps.properties.outputs.name}}-${{steps.properties.outputs.version}}
+                name: ${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}
                 path: ./build/libs
 
     releaseDraft:
-        name:    Release draft
-        needs:   build
-        runs-on: self-hosted
+        name:        "Release draft"
+        needs:       build
+        runs-on:     self-hosted
         environment: development
         permissions:
             contents: write
         steps:
-        -   name: Fetch source
-            run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
-            env:
-                GH_TOKEN: ${{github.token}}
-        -   name: Create wrapper
-            run:  gradle wrapper
-        -   name: Extract properties
-            id: properties
-            run:  |
-                  ./.github/scripts/capture-properties.ps1 -Property name >> $env:GITHUB_OUTPUT
-                  ./.github/scripts/capture-properties.ps1 -Property version >> $env:GITHUB_OUTPUT
-        -   name: Build with Gradle wrapper
-            run:  ./gradlew build
-        -   name: Create release draft
+
+        -   name: "Build release"
+            id:   build
+            uses: ./.github/actions/gradle-task
+            with:
+                task: "build"
+
+        -   name: "Create release"
             env:
                 GITHUB_TOKEN: ${{github.token}}
+                NAME:         ${{steps.build.outputs.build-name}}
+                VERSION:      ${{steps.build.outputs.build-version}}
             run:  |
-                  gh release create "v${{steps.properties.outputs.version}}" ./build/libs/${{steps.properties.outputs.name}}-${{steps.properties.outputs.version}}.jar `--draft --title "v${{steps.properties.outputs.version}}"
+                  gh release create "v$VERSION" `
+                      './build/libs/$NAME-$VERSION.jar#Binary' `
+                      './build/libs/$NAME-$VERSION-souces.jar#Source code' `
+                      './build/libs/$NAME-$VERSION-javadoc.jar#Documentation' `
+                      --draft --title "v$VERSION"
