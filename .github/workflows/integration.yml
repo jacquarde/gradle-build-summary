@@ -27,7 +27,9 @@ on:
 jobs:
 
     build:
+        name: Build artifact
         runs-on: self-hosted
+        environment: development
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
@@ -35,14 +37,13 @@ jobs:
                 GH_TOKEN: ${{github.token}}
         -   name: Create wrapper
             run:  gradle wrapper
-        -   name: Build with Gradle wrapper
-            run:  ./gradlew build
         -   name: Extract properties
             id: properties
             run:  |
-                  "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_OUTPUT
-                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_OUTPUT
-                  cat $env:GITHUB_OUTPUT
+                  ./.github/scripts/capture-properties.ps1 -Property name >> $env:GITHUB_OUTPUT
+                  ./.github/scripts/capture-properties.ps1 -Property version >> $env:GITHUB_OUTPUT
+        -   name: Build with Gradle wrapper
+            run:  ./gradlew build
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
@@ -53,6 +54,7 @@ jobs:
         name:    Release draft
         needs:   build
         runs-on: self-hosted
+        environment: staging
         permissions:
             contents: write
         steps:
@@ -65,8 +67,10 @@ jobs:
         -   name: Extract properties
             id: properties
             run:  |
-                  "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_OUTPUT
-                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_OUTPUT
+                  ./.github/scripts/capture-properties.ps1 -Property name >> $env:GITHUB_OUTPUT
+                  ./.github/scripts/capture-properties.ps1 -Property version >> $env:GITHUB_OUTPUT
+        -   name: Build with Gradle wrapper
+            run:  ./gradlew build
         -   name: Create release draft
             env:
                 GITHUB_TOKEN: ${{github.token}}
