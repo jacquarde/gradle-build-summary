@@ -44,7 +44,7 @@ jobs:
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
-                name: ${env:name}-${env:version}
+                name: "${env:name}-${env:version}"
                 path: ./build/libs
 
     releaseDraft:
