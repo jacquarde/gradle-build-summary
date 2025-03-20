@@ -26,25 +26,8 @@ on:
 
 jobs:
 
-    setup:
-        runs-on: self-hosted
-        outputs:
-            properties: ${{steps.properties.outputs.properties}}
-        steps:
-        -   name: Fetch source
-            run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
-            env:
-                GH_TOKEN: ${{github.token}}
-        -   name: Create wrapper
-            run:  gradle wrapper
-        -   name: Extract properties
-            id:   properties
-            run:  |
-                  echo "properties=$(./gradlew propertiesJson -q)" >> "$env:GITHUB_OUTPUT"
-
     build:
         runs-on: self-hosted
-        needs:   setup
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
@@ -56,6 +39,9 @@ jobs:
             run:  ./gradlew build
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
+            env:
+                name:    ./.github/scripts/capture-properties.ps1 -Property name
+                version: ./.github/scripts/capture-properties.ps1 -Property version
             with:
                 name: ${{env.name}}-${{env.version}}
                 path: ./build/libs
@@ -66,7 +52,7 @@ jobs:
         runs-on: self-hosted
         permissions:
             contents: write
-        env: ${{fromJSON(needs.setup.outputs.properties)}}
+        env:     ${{fromJSON(needs.setup.outputs.properties)}}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
@@ -75,5 +61,6 @@ jobs:
         -   name: Create release draft
             env:
                 GITHUB_TOKEN: ${{github.token}}
+                version:      ./.github/scripts/capture-properties.ps1 -Property version
             run:  |
                   gh release create "v${{env.version}}" --draft --title "v${{env.version}}"
