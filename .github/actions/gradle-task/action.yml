@@ -44,9 +44,9 @@ runs:
         shell: pwsh
         id:    properties
         run:   |
-               ./capture-properties.ps1 -Property name >> $env:GITHUB_OUTPUT
-               ./capture-properties.ps1 -Property version >> $env:GITHUB_OUTPUT
+               capture-properties.ps1 -Property name >> $env:GITHUB_OUTPUT
+               capture-properties.ps1 -Property version >> $env:GITHUB_OUTPUT
 
     -   name:  Build with Gradle wrapper
         shell: pwsh
-        run:   ./gradlew ${{inputs.task}}
+        run:   gradlew ${{inputs.task}}
