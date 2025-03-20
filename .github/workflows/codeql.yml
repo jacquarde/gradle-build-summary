@@ -52,6 +52,11 @@ jobs:
             env:
                 GH_TOKEN: ${{github.token}}
 
+        -   name: "Build artifact"
+            if:   ${{ matrix.build-mode == 'manual' }}
+            run:  |
+                  gradle wrapper --no-scan
+
         -   name: "Initialize CodeQL"
             uses: github/codeql-action/init@v3
             with:
