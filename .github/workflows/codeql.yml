@@ -1,0 +1,47 @@
+
+
+name: "CodeQL checks"
+
+
+on:
+    push:
+        branches: [ develop ]
+    pull_request:
+        branches: [ main ]
+    schedule:
+    - cron: '44 20 * * 2'
+
+
+jobs:
+    analyze:
+        name: Analyze (${{ matrix.language }})
+        runs-on: [self-hosted]
+        permissions:
+            security-events: write
+            packages: read
+            actions: read
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                - language: java-kotlin
+                  build-mode: none
+        steps:
+
+        -   name:  "Fetch source"
+            shell: pwsh
+            run:   gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
+            env:
+                GH_TOKEN: ${{github.token}}
+
+        - name: "Initialize CodeQL"
+          uses: github/codeql-action/init@v3
+          with:
+              languages: ${{ matrix.language }}
+              build-mode: ${{ matrix.build-mode }}
+
+        - name: "Perform CodeQL Analysis"
+          uses: github/codeql-action/analyze@v3
+          with:
+              category: "/language:${{matrix.language}}"
