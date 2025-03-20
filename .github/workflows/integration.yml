@@ -44,7 +44,7 @@ jobs:
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
-                name: ${{env.name}}-${{env.version}}
+                name: ${env:name}-${env:version}
                 path: ./build/libs
 
     releaseDraft:
@@ -68,4 +68,4 @@ jobs:
             env:
                 GITHUB_TOKEN: ${{github.token}}
             run:  |
-                  gh release create "v${{env.version}}" ./build/libs/${{env.name}}-${{env.version}}.jar `--draft --title "v${{env.version}}"
+                  gh release create "v${env:version}" ./build/libs/${env:name}-${env:version}.jar `--draft --title "v${env:version}"
