@@ -18,7 +18,6 @@
 plugins {
 	alias(main.plugins.publish)
 	alias(main.plugins.kotlin.dsl)
-	id("github-tooling")
 }
 
 
