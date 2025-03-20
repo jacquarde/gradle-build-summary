@@ -41,7 +41,7 @@ jobs:
             matrix:
                 include:
                 -   language:   kotlin
-                    build-mode: manual
+                    build-mode: autobuild
                 -   language:   actions
                     build-mode: none
         steps:
@@ -57,12 +57,6 @@ jobs:
             with:
                 languages:  ${{ matrix.language }}
                 build-mode: ${{ matrix.build-mode }}
-
-        -   name: "Build artifact"
-            if:   ${{ matrix.build-mode == 'manual' }}
-            run:  |
-                  gradle wrapper --no-scan
-                  ./gradlew build --no-scan --no-build-cache
 
         -   name: "Perform CodeQL Analysis"
             uses: github/codeql-action/analyze@v3
