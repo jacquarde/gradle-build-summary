@@ -32,6 +32,12 @@ jobs:
         environment: development
         steps:
 
+        -   name:  "Fetch source"
+            shell: pwsh
+            run:   gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
+            env:
+                GH_TOKEN: ${{github.token}}
+
         -   name: "Build artifact"
             id:   build
             uses: ./.github/actions/gradle-task
@@ -52,6 +58,12 @@ jobs:
         permissions:
             contents: write
         steps:
+
+        -   name:  "Fetch source"
+            shell: pwsh
+            run:   gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
+            env:
+                GH_TOKEN: ${{github.token}}
 
         -   name: "Build release"
             id:   build
