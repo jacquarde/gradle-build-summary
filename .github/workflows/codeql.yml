@@ -61,8 +61,8 @@ jobs:
         -   name: "Build artifact"
             if:   ${{ matrix.build-mode == 'manual' }}
             run:  |
-                  gradle wrapper
-                  ./gradlew build
+                  gradle wrapper --no-scan
+                  ./gradlew build --no-scan --no-build-cache
 
         -   name: "Perform CodeQL Analysis"
             uses: github/codeql-action/analyze@v3
