@@ -38,15 +38,14 @@ jobs:
         -   name: Build with Gradle wrapper
             run:  ./gradlew build
         -   name: Extract properties
+            id: properties
             run:  |
-                  "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_ENV
-                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_ENV
-                  echo ${env:name}
-                  echo ${env:version}
+                  "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_OUTPUT
+                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_OUTPUT
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
-                name: "${env:name}-${env:version}"
+                name: ${{steps.properties.outputs.name}}-${{steps.properties.outputs.version}}"
                 path: ./build/libs
 
     releaseDraft:
@@ -63,11 +62,12 @@ jobs:
         -   name: Create wrapper
             run:  gradle wrapper
         -   name: Extract properties
+            id: properties
             run:  |
-                  "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_ENV
-                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_ENV
+                  "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_OUTPUT
+                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_OUTPUT
         -   name: Create release draft
             env:
                 GITHUB_TOKEN: ${{github.token}}
             run:  |
-                  gh release create "v${env:version}" ./build/libs/${env:name}-${env:version}.jar `--draft --title "v${env:version}"
+                  gh release create "v${{steps.properties.outputs.version}}" ./build/libs/${{steps.properties.outputs.name}}-${{steps.properties.outputs.version}}.jar `--draft --title "v${{steps.properties.outputs.version}}"
