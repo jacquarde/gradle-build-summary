@@ -37,11 +37,12 @@ jobs:
             run:  gradle wrapper
         -   name: Build with Gradle wrapper
             run:  ./gradlew build
+        -   name: Extract properties
+            run: |
+                "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_PATH
+                "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_PATH
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
-            env:
-                name:    "$(./.github/scripts/capture-properties.ps1 -Property name)"
-                version: "$(./.github/scripts/capture-properties.ps1 -Property version)"
             with:
                 name: ${{env.name}}-${{env.version}}
                 path: ./build/libs
@@ -52,12 +53,16 @@ jobs:
         runs-on: self-hosted
         permissions:
             contents: write
-        env:     ${{fromJSON(needs.setup.outputs.properties)}}
         steps:
         -   name: Fetch source
             run:  gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
             env:
                 GH_TOKEN: ${{github.token}}
+        -   name: Build with Gradle wrapper
+            run:  ./gradlew build
+        -   name: Extract properties
+            run:  |
+                  "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_PATH
         -   name: Create release draft
             env:
                 GITHUB_TOKEN: ${{github.token}}
