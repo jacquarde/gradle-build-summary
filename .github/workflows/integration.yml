@@ -41,6 +41,8 @@ jobs:
             run:  |
                   "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_ENV
                   "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_ENV
+                  echo ${env:name}
+                  echo ${env:version}
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
