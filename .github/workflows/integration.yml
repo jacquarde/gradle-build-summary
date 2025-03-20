@@ -77,6 +77,6 @@ jobs:
             run:  |
                   gh release create "v${{steps.build.outputs.build-version}}" `
                       './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}.jar#Binary' `
-                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-souces.jar#Source code' `
+                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-sources.jar#Source code' `
                       './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-javadoc.jar#Documentation' `
                       --draft --title "${{steps.build.outputs.build-name}}${{steps.build.outputs.build-version}} development"
