@@ -40,8 +40,8 @@ jobs:
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             env:
-                name:    $(./.github/scripts/capture-properties.ps1 -Property name)
-                version: $(./.github/scripts/capture-properties.ps1 -Property version)
+                name:    "$(./.github/scripts/capture-properties.ps1 -Property name)"
+                version: "$(./.github/scripts/capture-properties.ps1 -Property version)"
             with:
                 name: ${{env.name}}-${{env.version}}
                 path: ./build/libs
@@ -61,6 +61,6 @@ jobs:
         -   name: Create release draft
             env:
                 GITHUB_TOKEN: ${{github.token}}
-                version:      $(./.github/scripts/capture-properties.ps1 -Property version)
+                version:      "$(./.github/scripts/capture-properties.ps1 -Property version)"
             run:  |
                   gh release create "v${{env.version}}" --draft --title "v${{env.version}}"
