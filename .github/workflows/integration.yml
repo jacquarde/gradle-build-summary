@@ -42,10 +42,11 @@ jobs:
             run:  |
                   "name=$(./.github/scripts/capture-properties.ps1 -Property name)" >> $env:GITHUB_OUTPUT
                   "version=$(./.github/scripts/capture-properties.ps1 -Property version)" >> $env:GITHUB_OUTPUT
+                  cat $env:GITHUB_OUTPUT
         -   name: Upload artifact
             uses: actions/upload-artifact@v4
             with:
-                name: ${{steps.properties.outputs.name}}-${{steps.properties.outputs.version}}"
+                name: ${{steps.properties.outputs.name}}-${{steps.properties.outputs.version}}
                 path: ./build/libs
 
     releaseDraft:
