@@ -21,6 +21,7 @@ package org.eu.jacquarde.gradle.plugins.buildsummary
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRenderer
 
@@ -28,22 +29,24 @@ import org.eu.jacquarde.gradle.plugins.buildsummary.renderers.BuildSummaryRender
 object Writer {
 
     private lateinit var renderer: BuildSummaryRenderer
-    private lateinit var file: Path
+    private lateinit var summaryFolder: Directory
+    private lateinit var summaryFile: String
 
     fun setup(
             configuration: BuildSummaryConfiguration,
-            folder: DirectoryProperty
+            folder: DirectoryProperty,
     ) {
         renderer = configuration.renderer.get()
-        file = folder.ensureIsCreated().resolve(configuration.fileName.get())
+        summaryFolder = folder.get()
+        summaryFile = configuration.fileName.get()
     }
 
     fun write(buildSummary: BuildSummary) {
+        val file = summaryFolder.ensureIsCreated().resolve(summaryFile)
         file
                 .readLines()
                 .add(buildSummary)
                 .writeTo(file)
-
     }
 
     private fun List<String>.writeTo(file: Path) =
@@ -59,20 +62,15 @@ object Writer {
             renderer.add(summary, to = this)
 }
 
-
 //region Private extensions
 
-private fun DirectoryProperty.ensureIsCreated() =
-        Files.createDirectories(this.toPath)
+private fun Directory.ensureIsCreated(): Path =
+        Files.createDirectories(this.asFile.toPath())
 
 private fun Path.readLines(): List<String> =
         if (Files.exists(this))
             Files.readAllLines(this)
         else
             emptyList()
-
-private val DirectoryProperty.toPath: Path
-    get() =
-        get().asFile.toPath()
 
 //endregion
