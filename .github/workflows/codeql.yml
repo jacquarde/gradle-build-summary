@@ -40,7 +40,7 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                -   language:   kotlin
+                -   language:   java-kotlin
                     build-mode: manual
                 -   language:   actions
                     build-mode: none
@@ -53,6 +53,7 @@ jobs:
                 GH_TOKEN: ${{github.token}}
 
         -   name: "Prepare build"
+            if: ${{ matrix.build-mode == 'manual' }}
             run:  |
                   gradle wrapper --no-scan --no-daemon
                   gradle clean --no-scan --no-daemon
@@ -64,6 +65,7 @@ jobs:
                 build-mode: ${{ matrix.build-mode }}
 
         -   name: "Generate build"
+            if: ${{ matrix.build-mode == 'manual' }}
             run:  |
                   gradle assemble --no-scan --no-configuration-cache --no-build-cache --rerun-tasks --no-daemon
 
