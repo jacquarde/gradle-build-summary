@@ -52,12 +52,6 @@ jobs:
             env:
                 GH_TOKEN: ${{github.token}}
 
-        -   name: "Prepare build"
-            if: ${{ matrix.build-mode == 'manual' }}
-            run:  |
-                  gradle wrapper --no-scan --no-daemon
-                  gradle clean --no-scan --no-daemon
-
         -   name: "Initialize CodeQL"
             uses: github/codeql-action/init@v3
             with:
@@ -67,7 +61,7 @@ jobs:
         -   name: "Generate build"
             if: ${{ matrix.build-mode == 'manual' }}
             run:  |
-                  gradle assemble --no-scan --no-configuration-cache --no-build-cache --rerun-tasks --no-daemon
+                  gradle clean test --no-scan --no-configuration-cache --no-build-cache --rerun-tasks --no-daemon
 
         -   name: "Perform CodeQL Analysis"
             uses: github/codeql-action/analyze@v3
