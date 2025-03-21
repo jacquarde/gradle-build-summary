@@ -41,7 +41,7 @@ jobs:
             matrix:
                 include:
                 -   language:   kotlin
-                    build-mode: autobuild
+                    build-mode: manual
                 -   language:   actions
                     build-mode: none
         steps:
@@ -52,15 +52,16 @@ jobs:
             env:
                 GH_TOKEN: ${{github.token}}
 
-        -   name: "Generate wrapper"
-            run:  |
-                  gradle wrapper --no-scan
-
         -   name: "Initialize CodeQL"
             uses: github/codeql-action/init@v3
             with:
                 languages:  ${{ matrix.language }}
                 build-mode: ${{ matrix.build-mode }}
+
+        -   name: "Generate build"
+            run:  |
+                  gradle wrapper --no-scan
+                  gradle assemble --no-scan --no-configuration-cache --no-build-cache
 
         -   name: "Perform CodeQL Analysis"
             uses: github/codeql-action/analyze@v3
