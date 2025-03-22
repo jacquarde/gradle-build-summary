@@ -29,7 +29,7 @@ on:
 
 jobs:
     analyze:
-        name: Analyze (${{ matrix.language }})
+        name: Analyze ${{ matrix.language }}
         runs-on: [ self-hosted ]
         permissions:
             security-events: write
@@ -61,7 +61,7 @@ jobs:
         -   name: "Generate build"
             if: ${{ matrix.build-mode == 'manual' }}
             run:  |
-                  gradle clean test --no-scan --no-configuration-cache --no-build-cache --rerun-tasks --no-daemon
+                  gradle clean test --no-scan --no-configuration-cache --no-build-cache --no-daemon
 
         -   name: "Perform CodeQL Analysis"
             uses: github/codeql-action/analyze@v3

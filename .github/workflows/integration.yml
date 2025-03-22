@@ -32,17 +32,11 @@ jobs:
         environment: development
         steps:
 
-        -   name:  "Fetch source"
-            shell: pwsh
-            run:   gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
-            env:
-                GH_TOKEN: ${{github.token}}
-
         -   name: "Build artifact"
             id:   build
-            uses: ./.github/actions/gradle-task
+            uses: jacquarde/actions/gradle-task@088a22df275c751a90ecbee1e35b0d5fd12d3389
             with:
-                task: "build"
+                task: build
 
         -   name: "Upload artifact"
             uses: actions/upload-artifact@v4
@@ -51,6 +45,7 @@ jobs:
                 path: ./build/libs
 
     releaseDraft:
+        if:          ${{false}}
         name:        "Release draft"
         needs:       build
         runs-on:     self-hosted
@@ -59,17 +54,11 @@ jobs:
             contents: write
         steps:
 
-        -   name:  "Fetch source"
-            shell: pwsh
-            run:   gh repo clone ${{github.repository}} . -- --branch ${{github.ref_name}} --depth 1
-            env:
-                GH_TOKEN: ${{github.token}}
-
-        -   name: "Build release"
+        -   name: "Build artifact"
             id:   build
-            uses: ./.github/actions/gradle-task
+            uses: jacquarde/actions/gradle-task@088a22df275c751a90ecbee1e35b0d5fd12d3389
             with:
-                task: "build"
+                task: build
 
         -   name: "Create release"
             env:
