@@ -34,14 +34,14 @@ jobs:
 
         -   name: "Build artifact"
             id:   build
-            uses: jacquarde/actions/gradle-task@088a22df275c751a90ecbee1e35b0d5fd12d3389
+            uses: jacquarde/actions/gradle-task@c1dcb9ecce451ad4d70ac5f2fe0a758e45fb6288
             with:
                 task: build
 
         -   name: "Upload artifact"
             uses: actions/upload-artifact@v4
             with:
-                name: ${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}
+                name: ${{steps.build.outputs.project-name}}-${{steps.build.outputs.project-version}}
                 path: ./build/libs
 
     releaseDraft:
