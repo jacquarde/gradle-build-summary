@@ -17,7 +17,7 @@
 
 plugins {
 	id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
-	id("com.gradle.develocity") version("3.19.2")
+<//	id("com.gradle.develocity") version("3.19.2")
 }
 
 
@@ -45,10 +45,10 @@ dependencyResolutionManagement {
 	}
 }
 
-develocity {
-	buildScan {
-		publishing.onlyIf{ System.getenv("CI") != null  }
-		termsOfUseUrl   = "https://gradle.com/help/legal-terms-of-use"
-		termsOfUseAgree = "yes"
-	}
-}
+//develocity {
+//	buildScan {
+//		publishing.onlyIf{ System.getenv("CI") != null  }
+//		termsOfUseUrl   = "https://gradle.com/help/legal-terms-of-use"
+//		termsOfUseAgree = "yes"
+//	}
+//}
