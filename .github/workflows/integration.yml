@@ -29,12 +29,11 @@ jobs:
     build:
         name:        "Create artifact"
         runs-on:     self-hosted
-        environment: development
         steps:
 
         -   name: "Build artifact"
             id:   build
-            uses: jacquarde/actions/gradle-task@c1dcb9ecce451ad4d70ac5f2fe0a758e45fb6288
+            uses: jacquarde/actions/gradle-task@feature/gradle-task
             with:
                 task: build
 
@@ -49,7 +48,6 @@ jobs:
         name:        "Release draft"
         needs:       build
         runs-on:     self-hosted
-        environment: development
         permissions:
             contents: write
         steps:
