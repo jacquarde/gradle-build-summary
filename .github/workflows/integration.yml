@@ -28,14 +28,14 @@ jobs:
 
     build:
         name:        "Create artifact"
-        runs-on:     self-hosted
+        runs-on:     [self-hosted, pwsh, jre]
         steps:
 
         -   name: "Build artifact"
             id:   build
             uses: jacquarde/actions/gradle-task@feature/gradle-task
             with:
-                tasks: assemble check
+                tasks: build
 
         -   name: "Upload artifact"
             uses: actions/upload-artifact@v4
