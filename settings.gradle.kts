@@ -54,7 +54,7 @@ buildCache {
 		isPush = true
 		isAllowUntrustedServer = true
 		isAllowInsecureProtocol = true
-		url = uri("http://localhost/cache/")
+		url = uri("http://host.docker.internal/cache/")
 	}
 }
 

@@ -53,7 +53,7 @@ jobs:
 
         -   name: "Build artifact"
             id:   build
-            uses: jacquarde/actions/gradle-task@088a22df275c751a90ecbee1e35b0d5fd12d3389
+            uses: jacquarde/actions/gradle-task@feature/gradle-task
             with:
                 tasks: "build"
 
