@@ -1,5 +1,7 @@
 .gradle/
 .idea/
+.kotlin/
 build/
 gradle/
 gradlew*
+out/

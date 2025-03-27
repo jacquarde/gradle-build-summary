@@ -17,6 +17,7 @@
 
 plugins {
 	id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+//	id("com.gradle.develocity") version("3.19.2")
 }
 
 
@@ -26,16 +27,41 @@ rootProject.name = "gradle-build-summary"
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
+		gradlePluginPortal()
 	}
 	versionCatalogs {
 		create("main") {
 			version("gradle", "8.12.1")
-			version("jvm", "23")
-			plugin("kotlin","org.jetbrains.kotlin.jvm").version("2.1.0")
+			version("jvm",    "22")
+			plugin ("publish",                "com.gradle.plugin-publish").version("1.2.1")
+			plugin ("kotlin.dsl",             "org.gradle.kotlin.kotlin-dsl").version("5.1.2")
 		}
 		create("libs") {
-			version("kotest", "5.9.1")
-			library("kotest", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
+			version("kotest",                "5.9.1")
+			version("gradle",                "3.19.2")
+			library("gradle_develocity",          "com.gradle.develocity", "com.gradle.develocity.gradle.plugin").versionRef("gradle")
+			library("kotest",                     "io.kotest", "kotest-runner-junit5").versionRef("kotest")
 		}
 	}
 }
+
+
+buildCache {
+	local {
+		isEnabled = false
+	}
+	remote(HttpBuildCache::class) {
+		isPush = true
+		isAllowUntrustedServer = true
+		isAllowInsecureProtocol = true
+		url = uri("http://host.docker.internal/cache/")
+	}
+}
+
+//develocity {
+//	buildScan {
+//		publishing.onlyIf{ System.getenv("CI") != null  }
+//		termsOfUseUrl   = "https://gradle.com/help/legal-terms-of-use"
+//		termsOfUseAgree = "yes"
+//	}
+//}

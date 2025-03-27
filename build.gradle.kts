@@ -16,27 +16,47 @@
 
 
 plugins {
-	alias(main.plugins.kotlin)
+	alias(main.plugins.publish)
+	alias(main.plugins.kotlin.dsl)
 }
 
 
-group	= "io.github.jacquarde"
-version	= "0.1"
+group   = "org.eu.jacquarde"
+version = "0.2-rc-1"
 
 
 kotlin {
 	jvmToolchain {
-		languageVersion	= JavaLanguageVersion.of(main.versions.jvm.get())
-		vendor			= JvmVendorSpec.GRAAL_VM
+		languageVersion = JavaLanguageVersion.of(main.versions.jvm.get())
+		vendor          = JvmVendorSpec.GRAAL_VM
 	}
 	sourceSets {
+		main {
+			dependencies {
+				implementation(libs.gradle.develocity)
+			}
+		}
 		test {
-			kotlin.srcDirs("src/test.functional/kotlin")
-			resources.srcDirs("src/test.functional/resources")
+			dependencies {
+				implementation(libs.kotest)
+				implementation(project.sourceSets.main.get().output)
+			}
 		}
 	}
-	dependencies {
-		testImplementation(libs.kotest)
+}
+
+gradlePlugin {
+	plugins {
+		create("buildSummaryPlugin") {
+			id                  = "org.eu.jacquarde.gradle.plugins.buildsummary"
+			implementationClass = "org.eu.jacquarde.gradle.plugins.buildsummary.BuildSummaryPlugin"
+		}
+	}
+}
+
+publishing {
+	repositories {
+		mavenLocal()
 	}
 }
 
@@ -45,7 +65,7 @@ tasks {
 		useJUnitPlatform()
 	}
 	wrapper {
-		distributionType	= Wrapper.DistributionType.ALL
-		gradleVersion		= main.versions.gradle.get()
+		distributionType = Wrapper.DistributionType.ALL
+		gradleVersion    = main.versions.gradle.get()
 	}
 }
