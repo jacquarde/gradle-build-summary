@@ -45,6 +45,19 @@ dependencyResolutionManagement {
 	}
 }
 
+
+buildCache {
+	local {
+		isEnabled = false
+	}
+	remote(HttpBuildCache::class) {
+		isPush = true
+		isAllowUntrustedServer = true
+		isAllowInsecureProtocol = true
+		url = uri("http://localhost/cache/")
+	}
+}
+
 //develocity {
 //	buildScan {
 //		publishing.onlyIf{ System.getenv("CI") != null  }

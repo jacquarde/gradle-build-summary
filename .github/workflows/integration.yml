@@ -44,7 +44,6 @@ jobs:
                 path: ./build/libs
 
     releaseDraft:
-        if:          ${{false}}
         name:        "Release draft"
         needs:       build
         runs-on:     self-hosted
@@ -56,14 +55,16 @@ jobs:
             id:   build
             uses: jacquarde/actions/gradle-task@088a22df275c751a90ecbee1e35b0d5fd12d3389
             with:
-                tasks: build
+                tasks: "build"
 
         -   name: "Create release"
             env:
                 GITHUB_TOKEN: ${{github.token}}
+                BUILD_NAME: ${{steps.build.outputs.build-name}}
+                BUILD_VERSION: ${{steps.build.outputs.build-version}}
             run:  |
-                  gh release create "v${{steps.build.outputs.build-version}}" `
-                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}.jar#Binary' `
-                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-sources.jar#Source code' `
-                      './build/libs/${{steps.build.outputs.build-name}}-${{steps.build.outputs.build-version}}-javadoc.jar#Documentation' `
-                      --draft --title "v${{steps.build.outputs.build-version}}"
+                  gh release create "v${BUILD_VERSION}" `
+                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}.jar#Binary' `
+                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-sources.jar#Source code' `
+                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-javadoc.jar#Documentation' `
+                      --draft --title "v${BUILD_VERSION}"
