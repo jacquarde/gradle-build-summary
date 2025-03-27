@@ -55,7 +55,7 @@ jobs:
             id:   build
             uses: jacquarde/actions/gradle-task@feature/gradle-task
             with:
-                tasks: "build"
+                tasks: build
 
         -   name: "Create release"
             env:
@@ -64,7 +64,7 @@ jobs:
                 BUILD_VERSION: ${{steps.build.outputs.build-version}}
             shell: bash
             run:  |
-                  echo "::notice::NAME='${BUILD_NAME}' VERSION='${BUILD_NAME}'"
+                  echo "::notice::NAME=${BUILD_NAME} VERSION=${BUILD_VERSION}"
                   echo "::notice::$(ls ./build/libs)"
                   gh release create "v${BUILD_VERSION}" \
                       './build/libs/${BUILD_NAME}-${BUILD_VERSION}.jar#Binary' \
