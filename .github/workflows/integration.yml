@@ -62,6 +62,7 @@ jobs:
                 GITHUB_TOKEN: ${{github.token}}
                 BUILD_NAME: ${{steps.build.outputs.build-name}}
                 BUILD_VERSION: ${{steps.build.outputs.build-version}}
+            shell: bash
             run:  |
                   gh release create "v${env:BUILD_VERSION}" `
                       './build/libs/${env:BUILD_NAME}-${env:BUILD_VERSION}.jar#Binary' `
