@@ -64,8 +64,10 @@ jobs:
                 BUILD_VERSION: ${{steps.build.outputs.build-version}}
             shell: bash
             run:  |
-                  gh release create "v${BUILD_VERSION}" `
-                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}.jar#Binary' `
-                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-sources.jar#Source code' `
-                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-javadoc.jar#Documentation' `
+                  echo "::notice::NAME='${BUILD_NAME}' VERSION='${BUILD_NAME}'"
+                  echo "::notice::$(ls ./build/libs)"
+                  gh release create "v${BUILD_VERSION}" \
+                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}.jar#Binary' \
+                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-sources.jar#Source code' \
+                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-javadoc.jar#Documentation' \
                       --draft --title "v${BUILD_VERSION}"
