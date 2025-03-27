@@ -63,8 +63,8 @@ jobs:
                 BUILD_NAME: ${{steps.build.outputs.build-name}}
                 BUILD_VERSION: ${{steps.build.outputs.build-version}}
             run:  |
-                  gh release create "v${BUILD_VERSION}" `
-                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}.jar#Binary' `
-                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-sources.jar#Source code' `
-                      './build/libs/${BUILD_NAME}-${BUILD_VERSION}-javadoc.jar#Documentation' `
-                      --draft --title "v${BUILD_VERSION}"
+                  gh release create "v${env:BUILD_VERSION}" `
+                      './build/libs/${env:BUILD_NAME}-${env:BUILD_VERSION}.jar#Binary' `
+                      './build/libs/${env:BUILD_NAME}-${env:BUILD_VERSION}-sources.jar#Source code' `
+                      './build/libs/${env:BUILD_NAME}-${env:BUILD_VERSION}-javadoc.jar#Documentation' `
+                      --draft --title "v${env:BUILD_VERSION}"
