@@ -60,12 +60,12 @@ jobs:
         -   name: "Create release"
             env:
                 GITHUB_TOKEN: ${{github.token}}
-                BUILD_NAME: ${{steps.build.outputs.build-name}}
-                BUILD_VERSION: ${{steps.build.outputs.build-version}}
+                BUILD_NAME: ${{steps.build.outputs.project-name}}
+                BUILD_VERSION: ${{steps.build.outputs.project-version}}
             shell: bash
             run:  |
                   echo "::notice::NAME=${BUILD_NAME} VERSION=${BUILD_VERSION}"
-                  echo "::notice::$(ls ./build/libs)"
+                  echo "::notice::$(ls ./build/libs/*)"
                   gh release create "v${BUILD_VERSION}" \
                       './build/libs/${BUILD_NAME}-${BUILD_VERSION}.jar#Binary' \
                       './build/libs/${BUILD_NAME}-${BUILD_VERSION}-sources.jar#Source code' \
